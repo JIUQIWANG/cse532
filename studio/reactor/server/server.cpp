@@ -21,24 +21,27 @@ int main(int argc, char** argv){
     ACE_INET_Addr addr(port, ACE_LOCALHOST);
     ACE_SOCK_Acceptor acceptor;
     ACE_SOCK_Stream stream;
-    if(acceptor.open(addr, 1) < 0){
-        cerr << "Unable to open acceptor." << endl;
-        return returnType::other;
-    }
-    ACE_TCHAR addr_buffer[1024];
-    addr.addr_to_string(addr_buffer,1024);
-    cout << "acceptor opened, address:" << addr_buffer << endl;
 
-    if(acceptor.accept(stream) < 0){
-        cerr << "acceptor cannot accept socket connection" << endl;
-        return returnType::other;
+    while(true) {
+        if(acceptor.open(addr, 1) < 0){
+            cerr << "Unable to open acceptor." << endl;
+            return returnType::other;
+        }
+        ACE_TCHAR addr_buffer[1024];
+        addr.addr_to_string(addr_buffer,1024);
+        cout << "acceptor opened, address:" << addr_buffer << endl;
+        if (acceptor.accept(stream) < 0) {
+            cerr << "acceptor cannot accept socket connection" << endl;
+            return returnType::other;
+        }
+        while (true) {
+            ACE_TCHAR c;
+            if (stream.recv(&c, 1) <= 0)
+                break;
+            cout << c;
+        }
+        acceptor.close();
+        cout<<endl<<"Connection closed"<<endl;
     }
-    while(true){
-        ACE_TCHAR c;
-        if(stream.recv(&c, 1) <= 0)
-            break;
-        cout << c;
-    }
-    cout<<endl<<"Connection closed"<<endl;
     return returnType::success;
 }
