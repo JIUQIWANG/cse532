@@ -15,6 +15,8 @@ Client::Client(int argc, char **argv, const unsigned short port_):
 }
 
 int Client::handle_timeout(const ACE_Time_Value &value, const void *pVoid) {
+    printf("sending data\n");
+	   
     ACE_INET_Addr addr(port, ACE_LOCALHOST);
     ACE_SOCK_Connector connector;
     ACE_SOCK_Stream stream;
