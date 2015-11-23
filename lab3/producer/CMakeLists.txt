@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 project(producer)
 
-set(SOURCE_FILES producer_cli.cpp)
-set(HEADER_FILES)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(SOURCE_FILES producer_cli.cpp producer.cpp producer_ace.cpp playlist.cpp)
+set(HEADER_FILES producer.h producer_ace.h playlist.h)
 
 add_executable(producer ${SOURCE_FILES} ${HEADER_FILES})
 

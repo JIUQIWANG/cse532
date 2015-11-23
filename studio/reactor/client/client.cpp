@@ -3,7 +3,7 @@
 //
 
 #include "client.h"
-
+#include "../socket_handler.h"
 using namespace std;
 
 Client::Client(int argc, char **argv, const unsigned short port_):
@@ -45,5 +45,9 @@ int Client::handle_timeout(const ACE_Time_Value &value, const void *pVoid) {
     stream.close();
     cout << "stream closed"<<endl;
     return 0;
-    //return ACE_Event_Handler::handle_timeout(current_time, act);
 }
+
+// int Client::handle_close(ACE_HANDLE f, ACE_Reactor_Mask m){
+//     cout << "Client::handle_close() is called"<<endl<<flush;
+//     return 0;
+// }

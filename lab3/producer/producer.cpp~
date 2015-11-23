@@ -1,0 +1,6 @@
+#include "producer.h"
+using namespace std;
+
+Producer::Producer(const unsigned short port_): port(port_){
+    
+}
