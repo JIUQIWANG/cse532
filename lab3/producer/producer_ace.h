@@ -28,7 +28,8 @@ private:
 };
 
 class ProducerOutputHandler: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
-    
+public:
+    int sendMessage(const std::string& str);
 };
 
 class ProducerAcceptor: public ACE_Acceptor<ProducerInputHandler, ACE_SOCK_Acceptor>{

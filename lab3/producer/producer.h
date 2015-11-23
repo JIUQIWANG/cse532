@@ -16,17 +16,17 @@ public:
 
     //handle keyboard interaction
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
-    int open();
 
     int handleKeyboard(const std::string& str);
     //when shutting down, notify all connected directors
     void close();
 private:
     const unsigned short port;
-    //use shared_ptr to avoid memory leak
     std::shared_ptr<PlayList> playlist;
-    std::shared_ptr<ProducerAcceptor > acceptor;
+    
+    ProducerAcceptor acceptor;
+    ACE_Connector<ProducerOutputHandler, ACE_SOCK_Connector> connector;
+
     ACE_Reactor* reactor;
-    std::shared_ptr<ACE_Connector<ProducerOutputHandler, ACE_SOCK_Connector> > connector;
 };
 #endif
