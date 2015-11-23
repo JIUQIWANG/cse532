@@ -43,4 +43,10 @@ ProducerAcceptor(const std::shared_ptr<PlayList> playlist_): playlist(playlist_)
 private:
     const std::shared_ptr<PlayList> playlist;
 };
+
+class ProducerConnector: public ACE_Connector<ProducerOutputHandler, ACE_SOCK_Connector>{
+public:
+    
+private:
+};
 #endif

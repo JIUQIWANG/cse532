@@ -6,6 +6,7 @@ enum returnType{
     EARGUMENT,
     EREACTOR,
     ECONNECTION,
+    EOTHER
 };
 
 const unsigned short default_port = 2000;

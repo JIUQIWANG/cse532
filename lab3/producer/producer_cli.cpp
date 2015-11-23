@@ -14,8 +14,13 @@ int main(int argc, char** argv){
 	port = default_port;
     else
 	port = std::atoi(argv[1]);
+    try{
+	Producer producer(port);
+	ACE_Reactor::instance()->run_event_loop();
+    }catch(runtime_error e){
+	cerr << e.what() << endl;
+	return returnType::EOTHER;
+    }
 
-    Producer producer(port);
-    ACE_Reactor::instance()->run_event_loop();
     return returnType::SUCCESS;
 }
