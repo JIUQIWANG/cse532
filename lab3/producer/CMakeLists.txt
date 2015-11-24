@@ -4,7 +4,7 @@ project(producer)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(SOURCE_FILES producer_cli.cpp producer.cpp producer_ace.cpp playlist.cpp)
-set(HEADER_FILES producer.h producer_ace.h playlist.h)
+set(HEADER_FILES producer.h producer_ace.h playlist.h ../signal_handler.h ../common.h)
 
 add_executable(producer ${SOURCE_FILES} ${HEADER_FILES})
 

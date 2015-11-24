@@ -17,14 +17,14 @@ int main(int argc, char** argv){
 	port = std::atoi(argv[1]);
 
     SignalHandler sighandler;
-    ACE_Reactor::instance()->register_handler(SIGINT, &sighandler);
+    //sACE_Reactor::instance()->register_handler(SIGINT, &sighandler);
     try{
 	Producer producer(port);
 	while(true){
-	    if(SignalHandler::is_interrupted()){
-		producer.close();
-		break;
-	    }
+//	    if(SignalHandler::is_interrupted()){
+//		producer.close();
+//		break;
+//	    }
 	    ACE_Reactor::instance()->handle_events();
 	}
 
