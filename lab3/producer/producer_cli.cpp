@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ace/ACE.h>
 #include "producer.h"
+#include "../signal_handler.h"
 
 using namespace std;
 
@@ -14,9 +15,19 @@ int main(int argc, char** argv){
 	port = default_port;
     else
 	port = std::atoi(argv[1]);
+
+    SignalHandler sighandler;
+    ACE_Reactor::instance()->register_handler(SIGINT, &sighandler);
     try{
 	Producer producer(port);
-	ACE_Reactor::instance()->run_event_loop();
+	while(true){
+	    if(SignalHandler::is_interrupted()){
+		producer.close();
+		break;
+	    }
+	    ACE_Reactor::instance()->handle_events();
+	}
+
     }catch(runtime_error e){
 	cerr << e.what() << endl;
 	return returnType::EOTHER;
