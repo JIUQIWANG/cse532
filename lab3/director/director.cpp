@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "director.h"
 #include "string_util.h"
 

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "play.h"
 #include <chrono>
 using namespace std;
