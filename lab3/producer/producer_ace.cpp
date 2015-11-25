@@ -12,9 +12,12 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
             break;
         str.append(&data);
     }
-    if(stream.send('K') < 0){
+    cout << str << endl;
+    data = 'K';
+    if(stream.send(&data,1) < 0){
         return -1;
     }
+    cout << "Response sent" << endl;
     stream.close();
     return 0;
 }
