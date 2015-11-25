@@ -7,6 +7,8 @@
       <sourceFolder url="file://$MODULE_DIR$/director/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/director.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/director.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/director/director_ace.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/director/director_ace.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/director_cli.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/play.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/play.h" isTestSource="false" />
@@ -14,6 +16,8 @@
       <sourceFolder url="file://$MODULE_DIR$/director/player.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/string_util.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/string_util.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/outputHandler.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/outputHandler.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/playlist.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/playlist.h" isTestSource="false" />

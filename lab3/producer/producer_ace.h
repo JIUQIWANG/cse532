@@ -13,44 +13,34 @@
 #include <ace/Reactor.h>
 #include <memory>
 #include "../common.h"
+#include "../outputHandler.h"
 #include "playlist.h"
 
 class ProducerInputHandler : public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
 public:
     inline void setPlayList (const std::shared_ptr<PlayList> playlist_){
-	playlist = playlist_;
+        playlist = playlist_;
     }
 
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
-	printf("ProducerInputHandler::handle_close() called!\n");
-	return 0;
+        printf("ProducerInputHandler::handle_close() called!\n");
+        return 0;
     }
 
 private:
     std::shared_ptr<PlayList> playlist;
 };
 
-class ProducerOutputHandler: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
-public:
-    int sendMessage(const std::string& str);
-};
-
 class ProducerAcceptor: public ACE_Acceptor<ProducerInputHandler, ACE_SOCK_Acceptor>{
 public:
-ProducerAcceptor(const std::shared_ptr<PlayList> playlist_): playlist(playlist_){}
+    ProducerAcceptor(const std::shared_ptr<PlayList> playlist_): playlist(playlist_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
-	sh = new ProducerInputHandler();
-	sh->setPlayList(playlist);
-	return 0;
+        sh = new ProducerInputHandler();
+        sh->setPlayList(playlist);
+        return 0;
     }
 private:
     const std::shared_ptr<PlayList> playlist;
-};
-
-class ProducerConnector: public ACE_Connector<ProducerOutputHandler, ACE_SOCK_Connector>{
-public:
-
-private:
 };
 #endif

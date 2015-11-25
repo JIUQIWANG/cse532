@@ -31,8 +31,8 @@ int Producer::handle_input(ACE_HANDLE h){
 
 int Producer::handleKeyboard(const string& str){
     ACE_INET_Addr addr(port, ACE_LOCALHOST);
-    ProducerOutputHandler* h;
-    ACE_NEW_RETURN(h, ProducerOutputHandler(), -1);
+    OutputHandler* h;
+    ACE_NEW_RETURN(h, OutputHandler(), -1);
     connector.connect(h, addr);
     if(h->sendMessage(str) < 0)
         return -1;

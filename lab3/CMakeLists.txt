@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(Lab3)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTOR "build")
+
 include_directories(/usr/include)
 include_directories(/usr/local/include)
 link_directories(/usr/lib/x86_64-gnu-linux /usr/local/lib)

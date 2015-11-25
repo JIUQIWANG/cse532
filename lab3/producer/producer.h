@@ -8,9 +8,9 @@
 class Producer: public ACE_Event_Handler{
 public:
     enum commandType{
-	PLAY,
-	STOP,
-	EXIT
+        PLAY,
+        STOP,
+        EXIT
     };
     Producer(const unsigned short port_, ACE_Reactor* reactor_=ACE_Reactor::instance());
 
@@ -23,9 +23,9 @@ public:
 private:
     const unsigned short port;
     std::shared_ptr<PlayList> playlist;
-    
+
     ProducerAcceptor acceptor;
-    ACE_Connector<ProducerOutputHandler, ACE_SOCK_Connector> connector;
+    ACE_Connector<OutputHandler, ACE_SOCK_Connector> connector;
 
     ACE_Reactor* reactor;
 };
