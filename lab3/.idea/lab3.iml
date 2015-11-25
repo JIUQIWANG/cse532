@@ -14,8 +14,6 @@
       <sourceFolder url="file://$MODULE_DIR$/director/play.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/player.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/player.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/director/string_util.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/director/string_util.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/outputHandler.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/outputHandler.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/CMakeLists.txt" isTestSource="false" />
@@ -27,6 +25,8 @@
       <sourceFolder url="file://$MODULE_DIR$/producer/producer_ace.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/producer_cli.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/signal_handler.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/string_util.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/string_util.h" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -1,5 +1,5 @@
 #include "player.h"
-#include "string_util.h"
+#include "../string_util.h"
 using namespace std;
 
 //constructor of Player class. Create and launch the working thread, get the future of it

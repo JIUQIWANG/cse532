@@ -24,7 +24,6 @@ public:
 
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
-        printf("ProducerInputHandler::handle_close() called!\n");
         return 0;
     }
 
@@ -36,7 +35,9 @@ class ProducerAcceptor: public ACE_Acceptor<ProducerInputHandler, ACE_SOCK_Accep
 public:
     ProducerAcceptor(const std::shared_ptr<PlayList> playlist_): playlist(playlist_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
-        sh = new ProducerInputHandler();
+	ProducerInputHandler *h;
+	ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
+        sh = h;
         sh->setPlayList(playlist);
         return 0;
     }

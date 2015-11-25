@@ -1,7 +1,6 @@
-// lab2.cpp : Defines the entry point for the console application.
-//
-#include "director.h"
-#include "string_util.h"
+#include "director_ace.h"
+#include "../string_util.h"
+#include "../signal_handler.h"
 #include <iostream>
 #include <memory>
 
@@ -28,27 +27,60 @@ int main(int argc, char** argv) {
 		for (int pos = 4; pos < argc; pos++) {
 			scripts.push_back(argv[pos]);
 		}
-		director = shared_ptr<Director>(new Director(argv[1], argv[2], minimum_value, scripts));
+		director = shared_ptr<Director>(new Director(minimum_value, scripts));
 	}
 	catch (exception e) {
 		cerr << e.what() << endl;
 		return RETURN_SCRIPT_FILE_NOT_FOUND;
 	}
-	try {
-		string input;
-		vector<string> result;
-		while (getline(cin, input)) {
-			director->handler(input, result);
-			for (auto str : result){
-				cout << str << endl;
-			}
-			result.clear();
+
+	//initialize connection
+	ACE_INET_Addr addr;
+	unsigned short local_port;
+	string addr_str = string(argv[2]) + ':' + string(argv[1]);
+	cout << "Remote address: " << addr_str << endl;
+	addr.string_to_addr(addr_str.c_str());
+	DirectorAcceptor acceptor(director);
+	if(initializeAcceptor(acceptor, local_port) < 0){
+		cerr << "Can not open acceptor!" << endl;
+		return returnType::ECONNECTION;
+	}
+
+	if(sendPlayList(director, addr, local_port) < 0){
+		cerr << "Can not connect to Producer" << endl;
+		return returnType::ECONNECTION;
+	}
+	cout << "Local acceptor opened, port:" << local_port << endl;
+
+	//start main loop
+	SignalHandler* sighandler;
+	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::EMEMORY);
+	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
+
+	while(true){
+		if(SignalHandler::is_interrupted()) {
+			cout << "closed" << endl << flush;
+			closeConnection();
+			break;
 		}
+		ACE_Reactor::instance()->handle_events();
 	}
-	catch (exception e) {
-		cerr << e.what() << endl;
-		return RETURN_DIRECTOR_CUE_FAILED;
-	}
+
+//	try {
+//		string input;
+//		vector<string> result;
+//		while (getline(cin, input)) {
+//			director->handler(input, result);
+//			for (auto str : result){
+//				cout << str << endl;
+//			}
+//			result.clear();
+//		}
+//	}
+//	catch (exception e) {
+//		cerr << e.what() << endl;
+//		return RETURN_DIRECTOR_CUE_FAILED;
+//	}
 
 	return RETURN_SUCCESS;
 }

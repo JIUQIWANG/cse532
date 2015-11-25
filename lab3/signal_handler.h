@@ -11,6 +11,7 @@ public:
     static inline bool is_interrupted() {return interrupted;}
     
     virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
+        printf("signal intercepted!\n");
 	if(signum == SIGINT){
 	    interrupted = true;
 	}
