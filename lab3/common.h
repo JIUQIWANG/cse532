@@ -6,6 +6,7 @@ enum returnType{
     EARGUMENT,
     EREACTOR,
     ECONNECTION,
+    EMEMORY,
     EOTHER
 };
 
