@@ -12,6 +12,7 @@
 #include <ace/OS.h>
 #include <ace/Reactor.h>
 #include <memory>
+#include <iostream>
 #include "../common.h"
 #include "../outputHandler.h"
 #include "playlist.h"
@@ -22,6 +23,7 @@ public:
         playlist = playlist_;
     }
 
+    int parseCommand(const std::string& str);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
         return 0;
