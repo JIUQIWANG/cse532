@@ -1,5 +1,4 @@
 #include "director.h"
-#include "../string_util.h"
 
 #define INVALID_LINES_NUM -1
 #define SCRIPTS_START 0

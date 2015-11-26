@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(), acceptor(playlist), connector(){
+Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(new PlayList()), acceptor(playlist), connector(){
     if(ACE_Event_Handler::register_stdin_handler(this, reactor, ACE_Thread_Manager::instance()) < 0){
         throw runtime_error("Producer::Producer():Failed to register keyboard handler!");
     }
@@ -30,6 +30,13 @@ int Producer::handle_input(ACE_HANDLE h){
 }
 
 int Producer::handleKeyboard(const string& str){
+    vector<string> str_split;
+    string_util::split_str(str, str_split);
+    const size_t min_len = 2;
+    if(str_split.size() != min_len){
+        cerr << "Your command should contain at least two words" << endl;
+        return -1;
+    }
     ACE_INET_Addr addr(port, ACE_LOCALHOST);
     OutputHandler* h;
     ACE_NEW_RETURN(h, OutputHandler(), -1);

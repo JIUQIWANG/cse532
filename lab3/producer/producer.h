@@ -18,6 +18,8 @@ public:
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
 
     int handleKeyboard(const std::string& str);
+
+
     //when shutting down, notify all connected directors
     void close();
 private:

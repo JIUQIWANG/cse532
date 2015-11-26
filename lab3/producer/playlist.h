@@ -7,14 +7,21 @@
 #include <string>
 #include <iostream>
 struct PlayItem{
+    PlayItem(const std::string& name_, const ACE_INET_Addr& addr_): name(name_), addr(addr_), occupied(false){}
     std::string name;
     ACE_INET_Addr addr;
+    bool occupied;
 };
     
-class PlayList: public std::list<PlayItem>{
+class PlayList{
 public:
     void removeAddr(const ACE_INET_Addr& target_addr);
     void printList() const;
+    inline void push_back(const PlayItem& item){
+        data.push_back(item);
+    }
+private:
+    std::list<PlayItem> data;
 };
 
 
