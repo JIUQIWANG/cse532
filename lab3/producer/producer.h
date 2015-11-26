@@ -7,11 +7,6 @@
 
 class Producer: public ACE_Event_Handler{
 public:
-    enum commandType{
-        PLAY,
-        STOP,
-        EXIT
-    };
     Producer(const unsigned short port_, ACE_Reactor* reactor_=ACE_Reactor::instance());
 
     //handle keyboard interaction

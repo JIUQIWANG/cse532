@@ -20,6 +20,10 @@ public:
     inline void push_back(const PlayItem& item){
         data.push_back(item);
     }
+    inline const std::list<PlayItem>& getList() const{
+        return data;
+    }
+    bool find(const std::string& id_str, ACE_INET_Addr& addr) const;
 private:
     std::list<PlayItem> data;
 };

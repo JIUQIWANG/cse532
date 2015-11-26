@@ -37,6 +37,7 @@ public:
         std::vector<std::string> str_split;
         string_util::split_str(str, str_split);
 
+        cout << "c1 " << str << endl;
         //extract remote port number
         for(const auto& v: str_split.back()){
             if(v < '0' || v > '9'){
@@ -86,23 +87,24 @@ public:
         }
         return 0;
     }
+
     static std::string composeCommand(const protocalType& type, const std::vector<std::string>& arguments, const unsigned short local_port){
         std::string str;
         switch(type){
             case P_LIST:
-                str.append("<list>");
+                str.append("<list> ");
                 break;
             case P_PLAY:
-                str.append("<play>");
+                str.append("<play> ");
                 break;
             case P_OCCUPIED:
-                str.append("<occupied>");
+                str.append("<occupied> ");
                 break;
             case P_STOP:
-                str.append("<stop");
+                str.append("<stop> ");
                 break;
             case P_QUIT:
-                str.append("<quit>");
+                str.append("<quit> ");
                 break;
             default:
                 cerr << "Protocal::composeCommand(): invalid command type!" << endl;
@@ -113,6 +115,12 @@ public:
             str.append(v + " ");
         str.append(std::to_string(local_port));
         return str;
+    }
+
+    static std::string composeCommand(const protocalType& type, const std::string& str, const unsigned short local_port){
+        std::vector<std::string> arguments;
+        arguments.push_back(str);
+        return composeCommand(type, arguments, local_port);
     }
 };
 #endif

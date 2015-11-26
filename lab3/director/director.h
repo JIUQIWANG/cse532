@@ -31,9 +31,9 @@ class Director{
 public:
 	Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_);
 	~Director();
-	void cue(const std::string script_to_play, std::vector<std::string>& result);
-	void stop(const std::string script_to_stop, std::vector<std::string>& result);
-	void handler(const std::string command, std::vector<std::string>& result);
+	void cue(int id);
+	void stop(int id);
+	void parseCommand(const std::string& command);
 	std::string getPlayList();
 private:
 	//isOverride is the variable for extra part 2. num_players is the proper thread pool's size which is calculated by comparison of minimum_num_players adn max_players_consecutive

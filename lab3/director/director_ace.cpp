@@ -2,16 +2,17 @@
 using namespace std;
 
 int DirectorInputHandler::handle_input(ACE_HANDLE h){
-    char data;
+    char data[1024];
     ACE_SOCK_Stream& stream = peer();
     string str;
     while(true){
-        ssize_t res = stream.recv(&data,1);
+        ssize_t res = stream.recv(data,1024);
         if(res <= 0)
             break;
-        str.append(&data);
+        str.append(data);
     }
-    cout << str << endl;
+    director->parseCommand(str);
+    stream.close();
     return 0;
 }
 
@@ -21,7 +22,7 @@ int sendPlayList(const shared_ptr<Director>& director, const ACE_INET_Addr& addr
     ACE_NEW_RETURN(h, OutputHandler(), -1);
     if(connector.connect(h, addr) < 0)
         return -1;
-    string str = "<list> " + director->getPlayList() + ' '+ to_string(local_port);
+    string str = Protocal::composeCommand(Protocal::P_LIST, director->getPlayList(), local_port);
     h->sendMessage(str);
     return 0;
 }
@@ -40,6 +41,5 @@ int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port){
 }
 
 int closeConnection(){
-    cout << "closed" << endl << flush;
     return 0;
 }

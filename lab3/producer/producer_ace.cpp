@@ -28,7 +28,6 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
 
     remote_addr.set_port_number(remote_port);
     for(const auto& v: play_title){
-        cout << v << endl;
         PlayItem item(v, remote_addr);
         playlist->push_back(item);
     }

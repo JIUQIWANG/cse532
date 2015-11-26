@@ -18,8 +18,28 @@ void PlayList::printList() const{
 	cout << "Current PlayList" << endl;
 	int id = 0;
 	cout << "---------------------------" << endl;
-    for(; iter!=data.end(); ++iter)
-		cout << id++ <<' ' << iter->name << endl;
+    for(; iter!=data.end(); ++iter) {
+	    cout << id++ << '\t' << iter->name << "\t from:";
+	    char addrbuffer[1024];
+	    iter->addr.addr_to_string(addrbuffer, 1024);
+		cout << addrbuffer << endl;
+    }
 	cout << "---------------------------" << endl;
 
+}
+
+bool PlayList::find(const std::string &id_str, ACE_INET_Addr& addr)const {
+	for(const auto& v: id_str){
+		if(v < '0' || v > '9')
+			return false;
+	}
+	int id = std::stoi(id_str);
+	if(id >= data.size())
+		return false;
+	list<PlayItem>::const_iterator iter = data.begin();
+	int i = 0;
+	while(i++ < id)
+		iter++;
+	addr = iter->addr;
+	return true;
 }
