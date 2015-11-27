@@ -4,11 +4,11 @@
 using namespace std;
 
 int DirectorInputHandler::handle_input(ACE_HANDLE h){
-    char data[1024] = {};
+    char data[BUFSIZ] = {};
     ACE_SOCK_Stream& stream = peer();
     string str;
     while(true){
-        ssize_t res = stream.recv(data,1024);
+        ssize_t res = stream.recv(data,BUFSIZ);
         if(res <= 0)
             break;
         str.append(data);

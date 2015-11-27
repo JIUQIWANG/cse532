@@ -24,7 +24,7 @@ public:
         playlist = playlist_;
         unique_addr = unique_addr_;
     }
-    int parseCommand(const std::string& str);
+    int parseCommand(const std::string& str, ACE_INET_Addr remote_addr);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
         return 0;
