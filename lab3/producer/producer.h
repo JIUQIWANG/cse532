@@ -6,7 +6,6 @@
 #include <ace/Thread_Manager.h>
 
 #include "../sender.h"
-//#include "liveness_checker.h"
 #include "producer_acceptor.h"
 
 class Producer: public ACE_Event_Handler{
@@ -24,7 +23,9 @@ public:
 private:
     const unsigned short port;
     std::shared_ptr<PlayList> playlist;
-    //std::shared_ptr<std::unordered_set<ACE_INET_Addr> > unique_addr;
+
+    //unique_addr keeps tracking of individual connections
+    std::shared_ptr<unique_set> unique_addr;
     ProducerAcceptor acceptor;
     ACE_Reactor* reactor;
 };

@@ -12,16 +12,16 @@
 #include <memory>
 #include <iostream>
 #include <map>
-#include <unordered_set>
+#include "liveness_checker.h"
 #include "../common.h"
 #include "playlist.h"
 
 class ProducerInputHandler : public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH> {
 public:
-    inline void setPlayList(const std::shared_ptr<PlayList> playlist_
-                            /*const std::shared_ptr<std::unordered_set<ACE_INET_Addr> > unique_addr_*/) {
+    inline void setPlayList(const std::shared_ptr<PlayList> playlist_,
+                            const std::shared_ptr<unique_set> unique_addr_) {
         playlist = playlist_;
-        //unique_addr = unique_addr_;
+        unique_addr = unique_addr_;
     }
     int parseCommand(const std::string& str);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
@@ -31,22 +31,23 @@ public:
 
 private:
     std::shared_ptr<PlayList> playlist;
-    std::shared_ptr<std::unordered_set<ACE_INET_Addr> > unique_addr;
+    std::shared_ptr<unique_set> unique_addr;
 };
 
 class ProducerAcceptor: public ACE_Acceptor<ProducerInputHandler, ACE_SOCK_Acceptor>{
 public:
-    ProducerAcceptor(const std::shared_ptr<PlayList> playlist_):
-            playlist(playlist_) /*, unique_addr(unique_addr)*/{}
+    ProducerAcceptor(const std::shared_ptr<PlayList> playlist_,
+                     const std::shared_ptr<unique_set> unique_addr_):
+            playlist(playlist_) , unique_addr(unique_addr_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
 	ProducerInputHandler *h;
 	ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
         sh = h;
-        sh->setPlayList(playlist);
+        sh->setPlayList(playlist, unique_addr);
         return 0;
     }
 private:
     const std::shared_ptr<PlayList> playlist;
-    //const std::shared_ptr<std::unordered_set<ACE_INET_Addr> > unique_addr;
+    const std::shared_ptr<unique_set> unique_addr;
 };
 #endif

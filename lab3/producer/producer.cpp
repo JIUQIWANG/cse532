@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(new PlayList()), /*unique_addr(new unordered_set<ACE_INET_Addr>()),*/ acceptor(playlist){
+Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(new PlayList()), unique_addr(new unique_set()), acceptor(playlist, unique_addr){
     if(ACE_Event_Handler::register_stdin_handler(this, reactor, ACE_Thread_Manager::instance()) < 0){
         throw runtime_error("Producer::Producer():Failed to register keyboard handler!");
     }
@@ -40,22 +40,7 @@ int Producer::handleKeyboard(const string& str){
 
     //to quit the producer,
     if(str_split.front().compare("quit") == 0){
-        vector<ACE_INET_Addr> unique_addr;
-        const list<PlayItem>& list_data = playlist->getList();
-        for(const auto& v: list_data){
-            bool is_cached = false;
-            for(const auto addr: unique_addr){
-                if(addr == v.addr) {
-                    is_cached = true;
-                    break;
-                }
-            }
-            if(!is_cached)
-                unique_addr.push_back(v.addr);
-        }
-        for(const auto& addr: unique_addr){
 
-        }
         return 0;
     }
 
@@ -69,15 +54,24 @@ int Producer::handleKeyboard(const string& str){
         return -1;
     }
 
+    string id_converted = playlist->convertId(str_split.back());
+    if(id_converted.size() == 0){
+        cerr << "Invalid script id" << endl;
+        return -1;
+    }
+
     if(str_split.front().compare("play") == 0){
-        command = Protocal::composeCommand(Protocal::P_PLAY, str_split.back(), port);
+        command = Protocal::composeCommand(Protocal::P_PLAY, id_converted, port);
     }else if(str_split.front().compare("stop") == 0){
-        command = Protocal::composeCommand(Protocal::P_STOP, str_split.back(), port);
+        command = Protocal::composeCommand(Protocal::P_STOP, id_converted, port);
     }else{
         cerr << "Invalid command." << endl;
         return -1;
     }
 
+    char buffer[100];
+    remote_addr.addr_to_string(buffer, 100);
+    cout << command << ' '<< buffer << endl;
     Sender::sendMessage(command, remote_addr);
     return 0;
 }

@@ -18,6 +18,8 @@
       <sourceFolder url="file://$MODULE_DIR$/director/player.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/player.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/producer/liveness_checker.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/producer/liveness_checker.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/playlist.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/playlist.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/producer.cpp" isTestSource="false" />
