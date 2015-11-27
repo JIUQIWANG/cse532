@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::EMEMORY);
 	Liveness_sender* liveness_sender;
 	ACE_NEW_RETURN(liveness_sender, Liveness_sender(remote_addr, director, local_port), returnType::EMEMORY);
-	ACE_Time_Value report_interval(3,0);
+	const ACE_Time_Value report_interval(1,0);
 
 	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
 	ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);

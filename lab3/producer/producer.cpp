@@ -2,6 +2,9 @@
 
 using namespace std;
 
+//check connection of all directors in every 3 seconds
+const ACE_Time_Value Producer::check_interval(3, 0);
+
 Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(new PlayList()), unique_addr(new unique_set()), acceptor(playlist, unique_addr){
     if(ACE_Event_Handler::register_stdin_handler(this, reactor, ACE_Thread_Manager::instance()) < 0){
         throw runtime_error("Producer::Producer():Failed to register keyboard handler!");
@@ -10,6 +13,14 @@ Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port
     if(acceptor.open(local_addr) < 0){
         throw runtime_error("Producer::Producer():Failed to open acceptor!");
     }
+
+    //register the liveness checker
+    LivenessChecker *checker = nullptr;
+    ACE_NEW_NORETURN(checker, LivenessChecker(playlist));
+    if(!checker){
+        throw runtime_error("Producer::Producer(): Failed to allocate LivenessChecker");
+    }
+    reactor->schedule_timer(checker, 0, check_interval, check_interval);
     cout << "Waiting for director..." << endl;
 }
 
@@ -38,9 +49,13 @@ int Producer::handleKeyboard(const string& str){
     string command;
     ACE_INET_Addr remote_addr;
 
-    //to quit the producer,
+    //to quit the producer, the producer first send <quit> command to all connected
     if(str_split.front().compare("quit") == 0){
-
+        command = Protocal::composeCommand(Protocal::P_QUIT, "", port);
+        for(const auto& v: *unique_addr){
+            remote_addr.string_to_addr(v.c_str());
+            Sender::sendMessage(command, remote_addr);
+        }
         return 0;
     }
 
@@ -71,7 +86,6 @@ int Producer::handleKeyboard(const string& str){
 
     char buffer[100];
     remote_addr.addr_to_string(buffer, 100);
-    cout << command << ' '<< buffer << endl;
     Sender::sendMessage(command, remote_addr);
     return 0;
 }

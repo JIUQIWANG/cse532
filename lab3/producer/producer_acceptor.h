@@ -14,6 +14,7 @@
 #include <map>
 #include "liveness_checker.h"
 #include "../common.h"
+#include "../signal_handler.h"
 #include "playlist.h"
 
 class ProducerInputHandler : public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH> {

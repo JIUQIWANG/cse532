@@ -62,3 +62,35 @@ string PlayList::convertId(const std::string &id_str) {
 		iter++;
 	return to_string(iter->id);
 }
+
+void PlayList::checkStatus() {
+	unique_set addr_to_remove;
+	bool is_updated = false;
+	for(auto& v: data){
+		if(v.is_connected) {
+			v.is_connected = false;
+			continue;
+		}
+		is_updated = true;
+		char buffer[1024];
+		v.addr.addr_to_string(buffer, 1024);
+		addr_to_remove.insert(string(buffer));
+	}
+
+	for(auto&v: addr_to_remove){
+		cout << v << " disconnected." << endl;
+		ACE_INET_Addr addr;
+		addr.string_to_addr(v.c_str());
+		removeAddr(addr);
+	}
+
+	if(is_updated)
+		printList();
+}
+
+void PlayList::maintainConnection(const ACE_INET_Addr &addr) {
+	for(auto& v: data){
+		if(v.addr == addr)
+			v.is_connected = true;
+	}
+}

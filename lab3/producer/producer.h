@@ -4,6 +4,7 @@
 #include <string>
 #include <exception>
 #include <ace/Thread_Manager.h>
+#include <ace/Time_Value.h>
 
 #include "../sender.h"
 #include "producer_acceptor.h"
@@ -28,5 +29,7 @@ private:
     std::shared_ptr<unique_set> unique_addr;
     ProducerAcceptor acceptor;
     ACE_Reactor* reactor;
+
+    static const ACE_Time_Value check_interval;
 };
 #endif
