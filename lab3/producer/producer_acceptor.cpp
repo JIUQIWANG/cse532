@@ -12,6 +12,7 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
             break;
         str.append(data);
     }
+    cout << str << endl;
     stream.close();
     return parseCommand(str);
 }

@@ -9,7 +9,7 @@ Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port
     if(ACE_Event_Handler::register_stdin_handler(this, reactor, ACE_Thread_Manager::instance()) < 0){
         throw runtime_error("Producer::Producer():Failed to register keyboard handler!");
     }
-    ACE_INET_Addr local_addr(port, ACE_LOCALHOST);
+    ACE_INET_Addr local_addr(port);
     if(acceptor.open(local_addr) < 0){
         throw runtime_error("Producer::Producer():Failed to open acceptor!");
     }
