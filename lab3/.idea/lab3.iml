@@ -3,27 +3,31 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/common.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/common.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/director.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/director.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/director/director_ace.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/director/director_ace.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/director/director_acceptor.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/director/director_acceptor.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/director_cli.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/director/liveness_sender.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/director/liveness_sender.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/play.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/play.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/player.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/director/player.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/outputHandler.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/outputHandler.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/playlist.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/playlist.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/producer.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/producer.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/producer/producer_ace.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/producer/producer_ace.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/producer/producer_acceptor.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/producer/producer_acceptor.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/producer/producer_cli.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sender.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sender.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/signal_handler.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/signal_handler.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/string_util.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/string_util.h" isTestSource="false" />

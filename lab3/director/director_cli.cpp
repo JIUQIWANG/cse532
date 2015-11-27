@@ -1,5 +1,7 @@
-#include "director_ace.h"
+#include "director_acceptor.h"
+#include "../common.h"
 #include "../signal_handler.h"
+#include "liveness_sender.h"
 #include <iostream>
 #include <memory>
 
@@ -11,6 +13,8 @@
 #define NOTOVERRIDE false
 
 using namespace std;
+
+void closeConnection();
 
 int main(int argc, char** argv) {
 	//judge the correctness of number of arguments.
@@ -34,18 +38,18 @@ int main(int argc, char** argv) {
 	}
 
 	//initialize connection
-	ACE_INET_Addr addr;
+	ACE_INET_Addr remote_addr;
 	unsigned short local_port;
 	string addr_str = string(argv[2]) + ':' + string(argv[1]);
 	cout << "Remote address: " << addr_str << endl;
-	addr.string_to_addr(addr_str.c_str());
+	remote_addr.string_to_addr(addr_str.c_str());
 	DirectorAcceptor acceptor(director);
 	if(initializeAcceptor(acceptor, local_port) < 0){
 		cerr << "Can not open acceptor!" << endl;
 		return returnType::ECONNECTION;
 	}
 
-	if(sendPlayList(director, addr, local_port) < 0){
+	if(sendPlayList(director, remote_addr, local_port) < 0){
 		cerr << "Can not connect to Producer" << endl;
 		return returnType::ECONNECTION;
 	}
@@ -54,7 +58,12 @@ int main(int argc, char** argv) {
 	//start main loop
 	SignalHandler* sighandler;
 	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::EMEMORY);
+	Liveness_sender* liveness_sender;
+	ACE_NEW_RETURN(liveness_sender, Liveness_sender(remote_addr, director, local_port), returnType::EMEMORY);
+	ACE_Time_Value report_interval(3,0);
+
 	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
+	ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);
 
 	while(true){
 		if(SignalHandler::is_interrupted()) {
@@ -84,4 +93,7 @@ int main(int argc, char** argv) {
 	return RETURN_SUCCESS;
 }
 
+void closeConnection(){
+
+}
 

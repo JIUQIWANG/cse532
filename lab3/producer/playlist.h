@@ -7,10 +7,11 @@
 #include <string>
 #include <iostream>
 struct PlayItem{
-    PlayItem(const std::string& name_, const ACE_INET_Addr& addr_): name(name_), addr(addr_), occupied(false){}
+    PlayItem(const std::string& name_, const ACE_INET_Addr& addr_): name(name_), addr(addr_), is_occupied(false), is_connected(true){}
     std::string name;
     ACE_INET_Addr addr;
-    bool occupied;
+    bool is_occupied;
+    bool is_connected;
 };
     
 class PlayList{

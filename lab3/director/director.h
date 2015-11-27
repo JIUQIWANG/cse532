@@ -10,11 +10,11 @@
 #include <exception>
 #include <stdexcept>
 #include <future>
+#include <vector>
 
-#include "../outputHandler.h"
-#include "../common.h"
-#include "play.h"
-#include "player.h"
+class Play;
+class Player;
+struct Part;
 
 //Scene is composed by one or more Fragments. Each fragment owns particular players.
 struct Fragment{
@@ -34,7 +34,10 @@ public:
 	void cue(int id);
 	void stop(int id);
 	void parseCommand(const std::string& command);
-	std::string getPlayList();
+	std::string getPlayList() const;
+	inline void quit(){
+
+	}
 private:
 	//isOverride is the variable for extra part 2. num_players is the proper thread pool's size which is calculated by comparison of minimum_num_players adn max_players_consecutive
 	bool isOverride;

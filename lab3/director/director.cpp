@@ -1,4 +1,9 @@
 #include "director.h"
+#include "../common.h"
+#include "../sender.h"
+#include "play.h"
+#include "player.h"
+#include "../signal_handler.h"
 
 #define INVALID_LINES_NUM -1
 #define SCRIPTS_START 0
@@ -19,7 +24,7 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 		num_players = std::max(minimum_num_players, max_players_consecutive);
 }
 
-string Director::getPlayList() {
+string Director::getPlayList()const {
 	string full_list;
 	for(const auto& v: scripts)
 		full_list = full_list + '(' + v + ')';
@@ -108,8 +113,11 @@ void Director::parseCommand(const string& command){
 	vector<string> arguments;
 	unsigned short remote_port;
 	Protocal::parseCommand(command, type, arguments, remote_port);
-	if(type == Protocal::P_QUIT)
+	if(type == Protocal::P_QUIT) {
+		cout << "quit" << endl;
+		SignalHandler::interrupt();
 		return;
+	}
 
 	int play_id = std::stoi(arguments.back());
 	if(play_id >= scripts.size()){

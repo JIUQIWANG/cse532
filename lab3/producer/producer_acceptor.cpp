@@ -1,9 +1,9 @@
-#include "producer_ace.h"
+#include "producer_acceptor.h"
 
 using namespace std;
 
 int ProducerInputHandler::handle_input(ACE_HANDLE h){
-    char data[1024];
+    char data[1024] = {};
     ACE_SOCK_Stream& stream = peer();
     string str;
     while(true){

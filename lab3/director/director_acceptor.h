@@ -11,9 +11,7 @@
 #include <memory>
 #include <string>
 #include "director.h"
-#include "../outputHandler.h"
-
-typedef ACE_Connector<OutputHandler, ACE_SOCK_Connector> Connector;
+#include "../sender.h"
 
 class DirectorInputHandler: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
 public:
@@ -41,6 +39,4 @@ private:
 int sendPlayList(const std::shared_ptr<Director>& director, const ACE_INET_Addr& addr, const unsigned short local_port);
 
 int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port);
-
-int closeConnection();
 #endif

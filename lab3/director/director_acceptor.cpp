@@ -1,8 +1,10 @@
-#include "director_ace.h"
+#include "director_acceptor.h"
+#include "../common.h"
+
 using namespace std;
 
 int DirectorInputHandler::handle_input(ACE_HANDLE h){
-    char data[1024];
+    char data[1024] = {};
     ACE_SOCK_Stream& stream = peer();
     string str;
     while(true){
@@ -38,8 +40,4 @@ int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port){
         }
     }
     return -1;
-}
-
-int closeConnection(){
-    return 0;
 }

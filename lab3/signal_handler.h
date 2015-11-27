@@ -9,7 +9,7 @@ class SignalHandler: public ACE_Event_Handler{
 public:
     SignalHandler(){};
     static inline bool is_interrupted() {return interrupted;}
-    static inline void interrupt() {interrupted = true};
+    static inline void interrupt() {interrupted = true;}
     virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
         if(signum == SIGINT){
             interrupted = true;
@@ -19,7 +19,4 @@ public:
 private:
     static bool interrupted;
 };
-
-bool SignalHandler::interrupted = false;
-
 #endif

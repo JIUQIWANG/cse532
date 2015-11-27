@@ -3,7 +3,11 @@
 #include <memory>
 #include <string>
 #include <exception>
-#include "producer_ace.h"
+#include <ace/Thread_Manager.h>
+
+#include "../sender.h"
+//#include "liveness_checker.h"
+#include "producer_acceptor.h"
 
 class Producer: public ACE_Event_Handler{
 public:
@@ -20,10 +24,8 @@ public:
 private:
     const unsigned short port;
     std::shared_ptr<PlayList> playlist;
-
+    //std::shared_ptr<std::unordered_set<ACE_INET_Addr> > unique_addr;
     ProducerAcceptor acceptor;
-    ACE_Connector<OutputHandler, ACE_SOCK_Connector> connector;
-
     ACE_Reactor* reactor;
 };
 #endif
