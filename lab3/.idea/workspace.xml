@@ -87,8 +87,8 @@
       <file leaf-file-name="liveness_checker.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/producer/liveness_checker.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.092307694">
-              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.25384617">
+              <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -170,12 +170,12 @@
         <option value="$PROJECT_DIR$/producer/Liveness_receiver.h" />
         <option value="$PROJECT_DIR$/producer/Liveness_receiver.cpp" />
         <option value="$PROJECT_DIR$/producer/playlist.h" />
-        <option value="$PROJECT_DIR$/producer/liveness_checker.cpp" />
         <option value="$PROJECT_DIR$/producer/liveness_checker.h" />
         <option value="$PROJECT_DIR$/producer/producer.h" />
         <option value="$PROJECT_DIR$/producer/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/producer/producer.cpp" />
         <option value="$PROJECT_DIR$/producer/producer_acceptor.h" />
+        <option value="$PROJECT_DIR$/producer/liveness_checker.cpp" />
       </list>
     </option>
   </component>
@@ -821,8 +821,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/producer/liveness_checker.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.092307694">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.25384617">
+          <caret line="11" column="26" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
           <folding />
         </state>
       </provider>
