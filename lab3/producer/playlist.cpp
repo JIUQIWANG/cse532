@@ -7,7 +7,7 @@ void PlayList::removeAddr(const ACE_INET_Addr& target_addr) {
 	list<PlayItem>::iterator iter = data.begin();
 	int counter = 0;
 	for (; iter != data.end();) {
-		if (iter->addr == target_addr) {
+		if (iter->getAddr() == target_addr) {
 			iter = data.erase(iter);
 		} else {
 			++iter;
@@ -22,15 +22,15 @@ void PlayList::printList() const{
 	cout << "---------------------------" << endl;
     for(; iter!=data.end(); ++iter) {
 	    cout << id++ << '\t' << iter->name << "\t from:";
-	    char addrbuffer[1024];
-	    iter->addr.addr_to_string(addrbuffer, 1024);
+	    char addrbuffer[BUFSIZ];
+	    iter->getAddr().addr_to_string(addrbuffer, BUFSIZ);
 		cout << addrbuffer << endl;
     }
 	cout << "---------------------------" << endl;
 
 }
 
-bool PlayList::find(const std::string &id_str, ACE_INET_Addr& addr)const {
+bool PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stream)const {
 	for(const auto& v: id_str){
 		if(v < '0' || v > '9')
 			return false;
@@ -42,7 +42,7 @@ bool PlayList::find(const std::string &id_str, ACE_INET_Addr& addr)const {
 	int i = 0;
 	while(i++ < id)
 		iter++;
-	addr = iter->addr;
+	stream = iter->stream;
 	return true;
 }
 
@@ -72,8 +72,8 @@ void PlayList::checkStatus() {
 			continue;
 		}
 		is_updated = true;
-		char buffer[1024];
-		v.addr.addr_to_string(buffer, 1024);
+		char buffer[BUFSIZ];
+		v.getAddr().addr_to_string(buffer, BUFSIZ);
 		addr_to_remove.insert(string(buffer));
 	}
 
@@ -90,7 +90,7 @@ void PlayList::checkStatus() {
 
 void PlayList::maintainConnection(const ACE_INET_Addr &addr) {
 	for(auto& v: data){
-		if(v.addr == addr)
+		if(v.getAddr() == addr)
 			v.is_connected = true;
 	}
 }

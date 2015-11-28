@@ -4,6 +4,7 @@
 #include <ace/Acceptor.h>
 #include <ace/Event_Handler.h>
 #include <ace/SOCK_Acceptor.h>
+#include <ace/SOCK_Connector.h>
 #include <ace/SOCK_Stream.h>
 #include <ace/Svc_Handler.h>
 #include <ace/INET_Addr.h>
@@ -24,7 +25,7 @@ public:
         playlist = playlist_;
         unique_addr = unique_addr_;
     }
-    int parseCommand(const std::string& str, ACE_INET_Addr remote_addr);
+    int parseCommand(const std::string& str);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
         return 0;
@@ -41,10 +42,11 @@ public:
                      const std::shared_ptr<unique_set> unique_addr_):
             playlist(playlist_) , unique_addr(unique_addr_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
-	ProducerInputHandler *h;
-	ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
+        ProducerInputHandler *h;
+        ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
         sh = h;
         sh->setPlayList(playlist, unique_addr);
+        sh->reactor(reactor());
         return 0;
     }
 private:

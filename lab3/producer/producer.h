@@ -27,7 +27,7 @@ private:
 
     //unique_addr keeps tracking of individual connections
     std::shared_ptr<unique_set> unique_addr;
-    ProducerAcceptor acceptor;
+    ProducerAcceptor* acceptor;
     ACE_Reactor* reactor;
 
     static const ACE_Time_Value check_interval;
