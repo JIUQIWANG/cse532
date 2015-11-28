@@ -21,13 +21,13 @@ public:
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
 private:
     std::shared_ptr<Director> director;
+	static const ACE_Time_Value timeout;
 };
 
 class DirectorAcceptor: public ACE_Acceptor<DirectorInputHandler, ACE_SOCK_Acceptor>{
 public:
     DirectorAcceptor(const std::shared_ptr<Director> director_): director(director_){}
     virtual int make_svc_handler(DirectorInputHandler *&sh){
-        printf("Director: connection received!\n");
         DirectorInputHandler *h;
         ACE_NEW_RETURN(h, DirectorInputHandler(director), -1);
         sh = h;
@@ -38,7 +38,5 @@ private:
     std::shared_ptr<Director> director;
 };
 
-int sendPlayList(const std::shared_ptr<Director>& director, const ACE_SOCK_Stream& stream, const unsigned short local_port);
 
-int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port);
 #endif

@@ -22,7 +22,7 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 	if (isOverride)
 		num_players = minimum_num_players;
 	else
-		num_players = std::max(minimum_num_players, max_players_consecutive);
+		num_players = max(minimum_num_players, max_players_consecutive);
 
 	//Make Director Active Object with a thread to continue work
 	packaged_task<int()> task(bind(&Director::work, this));
@@ -112,7 +112,7 @@ void Director::storeScript(const string script_name_, int position){
 			if (num_previous_part == INVALID_LINES_NUM)
 				num_previous_part = cur_line_count;
 			else{
-				max_players_consecutive = std::max(max_players_consecutive, num_previous_part + cur_line_count);
+				max_players_consecutive = max(max_players_consecutive, num_previous_part + cur_line_count);
 				num_previous_part = cur_line_count;
 			}
 			if (is_previous_config)
@@ -151,7 +151,7 @@ string Director::parseCommand(const string& command){
 
 	int play_id = std::stoi(arguments.back());
 	//The operated script ID is invalid
-	if(play_id >= scripts.size() || play_id < 0){
+	if(play_id >= (int)scripts.size() || play_id < 0){
 		res = "Invalid Script ID";
 		return res;
 	}

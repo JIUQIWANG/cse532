@@ -27,13 +27,10 @@ public:
     }
     int parseCommand(const std::string& str);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
-    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
-        return 0;
-    }
-
 private:
     std::shared_ptr<PlayList> playlist;
     std::shared_ptr<unique_set> unique_addr;
+	static const ACE_Time_Value timeout;
 };
 
 class ProducerAcceptor: public ACE_Acceptor<ProducerInputHandler, ACE_SOCK_Acceptor>{
@@ -42,7 +39,6 @@ public:
                      const std::shared_ptr<unique_set> unique_addr_):
             playlist(playlist_) , unique_addr(unique_addr_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
-        printf("Connection received\n");
         ProducerInputHandler *h;
         ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
         sh = h;
