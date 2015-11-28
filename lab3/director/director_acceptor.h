@@ -27,16 +27,18 @@ class DirectorAcceptor: public ACE_Acceptor<DirectorInputHandler, ACE_SOCK_Accep
 public:
     DirectorAcceptor(const std::shared_ptr<Director> director_): director(director_){}
     virtual int make_svc_handler(DirectorInputHandler *&sh){
+        printf("Director: connection received!\n");
         DirectorInputHandler *h;
         ACE_NEW_RETURN(h, DirectorInputHandler(director), -1);
         sh = h;
+        sh->reactor(reactor());
         return 0;
     }
 private:
     std::shared_ptr<Director> director;
 };
 
-int sendPlayList(const std::shared_ptr<Director>& director, const ACE_INET_Addr& addr, const unsigned short local_port);
+int sendPlayList(const std::shared_ptr<Director>& director, const ACE_SOCK_Stream& stream, const unsigned short local_port);
 
-int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port);
+int initializeAcceptor(DirectorAcceptor* acceptor, unsigned short& local_port);
 #endif

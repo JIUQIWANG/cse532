@@ -3,22 +3,22 @@
 using namespace std;
 
 int ProducerInputHandler::handle_input(ACE_HANDLE h){
-    char data[1024] = {};
+    char data[BUFSIZ] = {};
     ACE_SOCK_Stream& stream = peer();
-    ACE_INET_Addr temp_addr;
-    stream.get_remote_addr(temp_addr);
     string str;
-    while(true){
-        ssize_t res = stream.recv(data,1024);
-        if(res <= 0)
-            break;
-        str.append(data);
-    }
-    stream.close();
-    return parseCommand(str, temp_addr);
+    ssize_t res = stream.recv(data,sizeof(data));
+    cout << "size: " << res << endl;
+    if(res <= 0)
+        return -1;
+    str.append(data);
+    return parseCommand(str);
 }
 
-int ProducerInputHandler::parseCommand(const std::string &str, ACE_INET_Addr remote_addr) {
+int ProducerInputHandler::parseCommand(const std::string &str) {
+    if(str.empty()) {
+        cout << "empty" << endl;
+        return -1;
+    }
     vector<string> play_title;
     Protocal::protocalType type;
     unsigned short remote_port;
@@ -27,8 +27,10 @@ int ProducerInputHandler::parseCommand(const std::string &str, ACE_INET_Addr rem
         return -1;
 
     char addr_buffer[BUFSIZ] = {};
+    ACE_INET_Addr remote_addr;
+    peer().get_remote_addr(remote_addr);
     remote_addr.set_port_number(remote_port);
-    remote_addr.addr_to_string(addr_buffer, 100);
+    remote_addr.addr_to_string(addr_buffer, BUFSIZ);
 
     if (type == Protocal::P_LIST) {
         if(unique_addr->find(string(addr_buffer)) != unique_addr->end()) {
@@ -37,8 +39,11 @@ int ProducerInputHandler::parseCommand(const std::string &str, ACE_INET_Addr rem
         }
         unique_addr->insert(string(addr_buffer));
         int counter = 0;
+        shared_ptr<ACE_SOCK_Stream> director_stream(new ACE_SOCK_Stream());
+        ACE_SOCK_Connector connector;
+        connector.connect(*director_stream, remote_addr);
         for (const auto &v: play_title) {
-            PlayItem item(v, counter++, remote_addr);
+            PlayItem item(v, counter++, director_stream);
             playlist->push_back(item);
         }
         playlist->printList();

@@ -3,18 +3,24 @@
 
 #include <ace/ACE.h>
 #include <ace/INET_Addr.h>
+#include <ace/SOCK_Stream.h>
 #include <list>
 #include <map>
 #include <string>
 #include <iostream>
+#include <memory>
 #include <unordered_set>
 typedef std::unordered_set<std::string> unique_set;
 
 struct PlayItem{
-    PlayItem(const std::string& name_, const int id_, const ACE_INET_Addr& addr_): name(name_), id(id_), addr(addr_), is_occupied(false), is_connected(true){}
+    PlayItem(const std::string& name_, const int id_, const std::shared_ptr<ACE_SOCK_Stream>& stream_): name(name_), id(id_), stream(stream_), is_occupied(false), is_connected(true){}
+    inline ACE_INET_Addr getAddr() const{
+        ACE_INET_Addr addr;
+        stream->get_remote_addr(addr);
+    }
     std::string name;
     int id;
-    ACE_INET_Addr addr;
+    const std::shared_ptr<ACE_SOCK_Stream> stream;
     bool is_occupied;
     bool is_connected;
 };
@@ -26,7 +32,8 @@ public:
     inline void push_back(const PlayItem& item){
         data.push_back(item);
         char buffer[100] = {};
-        item.addr.addr_to_string(buffer, 100);
+        ACE_INET_Addr addr = item.getAddr();
+        addr.addr_to_string(buffer, 100);
         unique_addr.insert(std::string(buffer));
     }
 
@@ -39,7 +46,7 @@ public:
     void maintainConnection(const ACE_INET_Addr& addr);
     std::string convertId(const std::string& id_str);
 
-    bool find(const std::string& id_str, ACE_INET_Addr& addr) const;
+    bool find(const std::string& id_str, std::shared_ptr<ACE_SOCK_Stream>& stream) const;
 private:
     std::list<PlayItem> data;
     unique_set unique_addr;

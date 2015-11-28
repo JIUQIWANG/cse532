@@ -43,13 +43,21 @@ int main(int argc, char** argv) {
 	string addr_str = string(argv[2]) + ':' + string(argv[1]);
 	cout << "Remote address: " << addr_str << endl;
 	remote_addr.string_to_addr(addr_str.c_str());
-	DirectorAcceptor acceptor(director);
+	DirectorAcceptor* acceptor;
+	ACE_NEW_RETURN(acceptor, DirectorAcceptor(director), returnType::EMEMORY);
 	if(initializeAcceptor(acceptor, local_port) < 0){
 		cerr << "Can not open acceptor!" << endl;
 		return returnType::ECONNECTION;
 	}
 
-	if(sendPlayList(director, remote_addr, local_port) < 0){
+	ACE_SOCK_Stream stream;
+	ACE_SOCK_Connector connector;
+	if(connector.connect(stream, remote_addr) < 0){
+		cerr << "Can not connect to Producer!" << endl;
+		return returnType::ECONNECTION;
+	}
+
+	if(sendPlayList(director, stream, local_port) < 0){
 		cerr << "Can not connect to Producer" << endl;
 		return returnType::ECONNECTION;
 	}
@@ -58,12 +66,13 @@ int main(int argc, char** argv) {
 	//start main loop
 	SignalHandler* sighandler;
 	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::EMEMORY);
-	Liveness_sender* liveness_sender;
-	ACE_NEW_RETURN(liveness_sender, Liveness_sender(remote_addr, director, local_port), returnType::EMEMORY);
+//	Liveness_sender* liveness_sender;
+//	ACE_NEW_RETURN(liveness_sender, Liveness_sender(remote_addr, director, local_port), returnType::EMEMORY);EMEMORY
+
 	const ACE_Time_Value report_interval(1,0);
 
 	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
-	ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);
+	//ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);
 
 	while(true){
 		if(SignalHandler::is_interrupted()) {
