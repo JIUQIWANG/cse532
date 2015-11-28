@@ -2,7 +2,7 @@
 #include "../string_util.h"
 using namespace std;
 
-//constructor of Player class. Create and launch the working thread, get the future of it
+//Constructor of Player class. Create and launch the working thread, get the future of it
 Player::Player(Play& play_) :play(play_){
 	packaged_task<int()> task(bind(&Player::read, this));
 	exceptionHandler = task.get_future();
@@ -11,12 +11,11 @@ Player::Player(Play& play_) :play(play_){
 
 
 Player::~Player() {
-	//exit();
 	if (t.joinable())
 		t.join();
 }
 
-//build Lines for Player object and start act() function.
+//Build Lines for Player object and start act() function.
 int Player::read(){
 	while (true){
 		unique_lock<mutex> guard(mt);
@@ -31,7 +30,7 @@ int Player::read(){
 	return 0;
 }
 
-//act specified part
+//Act specified part
 void Player::actPart(const std::shared_ptr<Part> &part){
 	lines.clear();
 	Situation entersit = play.enter(part->fragmentid);
@@ -47,7 +46,7 @@ void Player::actPart(const std::shared_ptr<Part> &part){
 	}
 	while (std::getline(fin, tempstr)){
 		Line templine;
-		//parse input string into Line objects.
+		//Parse input string into Line objects.
 		parseString(tempstr, part->str.first, templine);
 		if (templine.id > 0){ lines.push_back(templine); }
 	}
@@ -55,7 +54,7 @@ void Player::actPart(const std::shared_ptr<Part> &part){
 	sort(lines.begin(), lines.end(), [](const Line& l1, const Line& l2){return l1.id < l2.id; });
 	act(part->fragmentid);
 
-	//after acting, exit the stage
+	//After acting, exit the stage
 	Situation exitsit = play.exit();
 	if (exitsit != successExit){
 		cerr << "Player " <<part->str.second << " failed to exit!" << endl << flush;
@@ -66,7 +65,7 @@ void Player::actPart(const std::shared_ptr<Part> &part){
 //call recite() function of Play
 void Player::act(int fragmentid){
 	vector<Line>::iterator iter = lines.begin();
-	while (iter != lines.end()){
+	while (iter != lines.end() && !play.isStop()){
 		play.recite(iter, fragmentid);
 	}
 }
@@ -90,7 +89,7 @@ void Player::parseString(const string& str, const string& character, Line& line)
 	vector<string> newstr;
 	string_util::split_str(str, newstr);
 
-	//check if the first string is a number
+	//Check if the first string is a number
 	for (const auto& c : newstr[0]){
 		if (c < '0' || c > '9')
 			return;

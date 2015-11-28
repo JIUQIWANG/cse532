@@ -35,7 +35,7 @@ public:
 	int read();
 	void exit();
 
-	//parse str into Line object line.
+	//Parse str into Line object line.
 	static void parseString(const std::string& str, const std::string& character, Line& line);
 private:
 	Play &play;
@@ -47,7 +47,7 @@ private:
 	std::vector<Line> lines;
 	std::thread t;
 
-	//we store the future of working thread to handle exception. The exception thrown in the working thread will be re-thrown in the main thread.
+	//We store the future of working thread to handle exception. The exception thrown in the working thread will be re-thrown in the main thread.
 	mutable std::future<int> exceptionHandler;
 	mutable std::mutex mt;
 	mutable std::condition_variable cv;

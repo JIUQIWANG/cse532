@@ -11,19 +11,37 @@
 using namespace std;
 
 Director::Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_) :scripts(scripts_), minimum_num_players(minimum_num_players_), max_players_consecutive(0), isOverride(false){
-	//
+	//Add mutiple scripts
+	isFinished.store(false);
 	int position = SCRIPTS_START;
 	while(position < (int)scripts.size()){
 		storeScript(scripts[position], position);
 		position++;
 	}
-	//construct player
+	//Compute num_players
 	if (isOverride)
 		num_players = minimum_num_players;
 	else
 		num_players = std::max(minimum_num_players, max_players_consecutive);
+
+	//Make Director Active Object with a thread to continue work
+	packaged_task<string()> task(bind(&Director::work, this));
+	workException = task.get_future();
+	workplay = thread(move(task));
 }
 
+string Director::work(){
+	//Continue pull script ID and call cue(id) to play the specific script
+	while(!isFinished.load()){
+		unique_lock<mutex> guard(mt);
+		cv.wait(guard, [&]{return !this->play_queue.empty();});
+		int id = play_queue.front();
+		cue(id);
+		play_queue.pop_front();
+	}
+}
+
+//Return formatted play list
 string Director::getPlayList()const {
 	string full_list;
 	for(const auto& v: scripts)
@@ -31,8 +49,10 @@ string Director::getPlayList()const {
 	return full_list;
 }
 
+//Store the specific script
 void Director::storeScript(const string script_name_, int position){
 	ifstream script_file(script_name_.c_str());
+	//Open the script file
 	if (!script_file.is_open())
 		throw runtime_error("Can not open script file!");
 
@@ -44,7 +64,7 @@ void Director::storeScript(const string script_name_, int position){
 	vector<string> curSceneTitles;
 	scene_titles.push_back(curSceneTitles);
 	scenes.push_back(curScenes);
-	//read script file and config files. While reading, fill the scenes member variable, which stores name and file path of each character
+	//Read script file and config files. While reading, fill the scenes member variable, which stores name and file path of each character
 	while (getline(script_file, tempstring)){
 		if (string_util::is_empty(tempstring))
 			continue;
@@ -52,7 +72,7 @@ void Director::storeScript(const string script_name_, int position){
 		string_util::split_str(tempstring, curline_split);
 		if (curline_split[0] == "[scene]"){
 			scenes[position].push_back(Scene());
-			//compose the scene title
+			//Compose the scene title
 			string curtitle;
 			for (size_t i = 1; i < curline_split.size() - 1; i++){
 				curtitle.append(curline_split[i]);
@@ -63,7 +83,7 @@ void Director::storeScript(const string script_name_, int position){
 			is_previous_config = false;
 		}
 		else{
-			//store configuration files which are represented by Fragment in this lab.
+			//Store configuration files which are represented by Fragment in this lab.
 			ifstream config_file(curline_split[0].c_str());
 			if (!config_file.is_open()){
 				cerr << "Can not open config file! " << curline_split[0] << endl;
@@ -104,54 +124,80 @@ void Director::storeScript(const string script_name_, int position){
 }
 
 Director::~Director(){
+	if(workplay.joinable())
+		workplay.join();
 }
 
-void Director::parseCommand(const string& command){
-	if(string_util::is_empty(command))
-		return;
+string Director::parseCommand(const string& command){
+	string res;
+	//Command is empty
+	if(string_util::is_empty(command)){
+		res = "Empty Command";
+		return res;
+	}
 	Protocal::protocalType type;
 	vector<string> arguments;
 	unsigned short remote_port;
 	Protocal::parseCommand(command, type, arguments, remote_port);
+	//Command is quit
 	if(type == Protocal::P_QUIT) {
 		cout << "quit" << endl;
 		SignalHandler::interrupt();
-		return;
+		isFinished.store(true);
+		res = "Quit!";
+		return res;
 	}
 
 	int play_id = std::stoi(arguments.back());
-	if(play_id >= scripts.size()){
-		return;
+	//The operated script ID is invalid
+	if(play_id >= scripts.size() || play_id < 0){
+		res = "Invalid Script ID";
+		return res;
 	}
 
+	//Command is play
 	if (type == Protocal::P_PLAY){
-		cue(play_id);
+		unique_lock<mutex> guard(mt);
+		play_queue.push_back(play_id);
+		guard.unlock();
+		res = "Add " + to_string(play_id) + " in the play queue";
+		cv.notify_all();
 	}
+	//Command is stop
 	else if (type == Protocal::P_STOP){
-		stop(play_id);
+		res = stop(play_id);
 	}
+	return res;
 }
 
-void Director::stop(int id){
-	if (id >= scripts.size()){
-		return;
+string Director::stop(int id){
+	string res;
+	//If the specific play is not running at all
+	if(!plays[id]->isWorking())
+		res = "Play " + to_string(id) + " is not running";
+	//Otherwise we will stop the specific play
+	else {
+		plays[id]->stop();
+		//In case of race condition between stop() and cue(), we add a mutex here
+		unique_lock<mutex> guard(mu);
+		players.clear();
+		exceptionHandlers.clear();
+		guard.unlock();
+		//After the stop, we still need to reset the specific play member variables
+		plays[id]->reset();
+		res = "Stop Successfully";
 	}
-	plays[id]->stop();
-	players.clear();
-	exceptionHandlers.clear();
-	plays[id]->reset();
+	return res;
 }
 
 void Director::cue(int id){
 	int counter = 0;
+	string res;
 
-	if (id >= scripts.size()){
-		return;
-	}
-	////////////////
+	//Each time we start playing a new script, players and excpetionHandlers need to be reset
 	players.clear();
 	exceptionHandlers.clear();
-	////////////////
+
 	for (unsigned int i = 0; i < num_players; i++){
 		future<int> exceptionHandler;
 		shared_ptr<Player> curplayer(new Player(*(plays[id])));
@@ -160,7 +206,9 @@ void Director::cue(int id){
 		exceptionHandlers.push_back(move(exceptionHandler));
 	}
 	cout << scene_titles[id][0] << endl;
-	//enter all parts into players
+	//Enter all parts into players.
+	//Here we add a mutex to ensure there will not be race condition when calling stop() function which clear players and exceptionHandlers
+	unique_lock<mutex> guard(mu);
 	for (const auto s : scenes[id]){
 		for (const auto f : s.fragments){
 			for (const auto p : f->parts){
@@ -171,8 +219,11 @@ void Director::cue(int id){
 	}
 	if (players.size() != exceptionHandlers.size())
 		throw runtime_error("Exception: palyers.size() != exceptionHandlers.size()");
-	//call exit function of each player and try to catch any exceptions
+	//Call exit function of each player and try to catch any exceptions
 	for (size_t i = 0; i < players.size(); i++){
+		//If the play is stopped, we will just break the loop
+		if(plays[id]->isStop())
+			break;
 		players[i]->exit();
 		try{
 			exceptionHandlers[i].get();
@@ -182,5 +233,13 @@ void Director::cue(int id){
 			cerr << e.what() << endl;
 		}
 	}
-	plays[id]->reset();
+	//Produce corresponding results based on whether or not we stop the play
+	if(plays[id]->isStop())
+		res = "Play Interrupted";
+	else {
+		res = "Play Successfully";
+		plays[id]->reset();
+	}
+	guard.unlock();
+	cout << res << endl;
 }

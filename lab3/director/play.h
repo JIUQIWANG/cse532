@@ -37,22 +37,29 @@ public:
 	}
 	~Play(){}
 
-	//recite function same as previous labs except one more argument
-	//enter and exit functions which are requested in lab2
+	//Recite function same as previous labs except one more argument
+	//Enter and exit functions which are requested in lab2
 	void recite(std::vector<Line>::iterator& iter, int fragment);
 	Situation enter(int enter_scene);
 	Situation exit();
-	void reset();
 
-	//set interrupt_flag
+
+	//Set interrupt_flag
+	//Set stop_flag
+	//Get stop_flag
+	//Get whether or not the play is running
+	//Reset necessary variables for next use
 	void interrupt();
 	void stop();
+	bool isStop();
+	bool isWorking();
+	void reset();
 private:
+	//start stores names_.start() which is used to reset the cur variable
 	//end stores names_.end() which is used to judge the last element when iterating
 	std::vector<std::string>::iterator cur;
 	const std::vector<std::string>::iterator start;
 	const std::vector<std::string>::iterator end;
-	std::string name;
 	std::string current_character;
 	int scene_fragment_counter;
 	int line_counter;
@@ -62,7 +69,6 @@ private:
 	std::atomic<bool> interrupt_flag;
 	mutable std::mutex mt;
 	mutable std::condition_variable cv;
-	mutable std::mutex enter_exit_lock;
 	mutable std::condition_variable enter_exit_cv;
 };
 
