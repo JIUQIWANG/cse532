@@ -11,5 +11,5 @@ using namespace std;
 
 int Liveness_sender::handle_timeout(const ACE_Time_Value &value, const void *pvoid) {
 	string command = Protocal::composeCommand(Protocal::P_LIST, director->getPlayList(), local_port);
-	return Sender::sendMessage(command, remote_addr);
+	return 0;//Sender::sendMessage(command, remote_addr);
 }

@@ -1,28 +1,19 @@
-//
-// Created by Yan Hang on 11/25/15.
-//
+#ifndef SENDER_H
+#define SENDER_H
 
-#ifndef OUTPUTHANDLER_H
-#define OUTPUTHANDLER_H
 #include <ace/ACE.h>
-#include <ace/Svc_Handler.h>
-#include <ace/INET_Addr.h>
 #include <ace/SOCK_Stream.h>
-#include <ace/SOCK_Connector.h>
-#include <ace/Connector.h>
+#include <ace/Time_Value.h>
 #include <string>
 #include <iostream>
-class OutputHandler: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH> {
-public:
-	int sendMessage(const std::string& str);
-};
-
-typedef ACE_Connector<OutputHandler, ACE_SOCK_Connector> Connector;
 
 class Sender{
 public:
-	static int sendMessage(const std::string& str, const ACE_INET_Addr& addr);
+	enum sendStatus{SUCCESS, E_SEND, E_RESPONSE};
+	static int sendMessage(const std::string& str, const ACE_SOCK_Stream& stream);
 private:
-	static Connector connector;
+	static const ACE_Time_Value timeout;
+	static char response[BUFSIZ];
 };
-#endif //LAB3_OUTPUTHANDLER_H
+
+#endif

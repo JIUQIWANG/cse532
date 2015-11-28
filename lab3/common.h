@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 #include "string_util.h"
-
 enum returnType{SUCCESS,E_ARGUMENT,E_REACTOR,E_CONNECTION,E_MEMORY, E_OTHER};
 
 const unsigned short default_port = 2000;

@@ -6,24 +6,19 @@
 #include "sender.h"
 using namespace std;
 
-int OutputHandler::sendMessage(const string& str) {
-	ACE_SOCK_Stream &stream = this->peer();
-	if (stream.send_n(str.c_str(), (int) str.size()) < 0)
-		return -1;
-	stream.close();
-	return 0;
-}
+const ACE_Time_Value Sender::timeout = ACE_Time_Value(5);
+char Sender::response[BUFSIZ] = {};
 
-Connector Sender::connector = Connector();
-
-int Sender::sendMessage(const std::string& str, const ACE_INET_Addr& remote_addr){
-	OutputHandler* h;
-	ACE_NEW_RETURN(h, OutputHandler(), -1);
-	connector.connect(h, remote_addr);
-	if(h->sendMessage(str) < 0) {
-		connector.close();
-		return -1;
+int Sender::sendMessage(const std::string& str, const ACE_SOCK_Stream& stream){
+	ssize_t res = stream.send_n(str.c_str(), (int)str.size(), &timeout);
+	if(res != (ssize_t)str.size()){
+		cerr << "Sender::sendMessage(): sending timeout!"<<endl;
+		return E_SEND;
 	}
-	connector.close();
-	return 0;
+	res = stream.recv(response, 1, &timeout);
+	if(res <= 0){
+		cerr << "Sender::sendMessage(): response timeout!" << endl;
+		return E_RESPONSE;
+	}
+	return SUCCESS;
 }

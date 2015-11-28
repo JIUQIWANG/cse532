@@ -51,6 +51,7 @@ public:
 private:
     std::list<PlayItem> data;
     unique_set unique_addr;
+	static const char windows_CR;
 };
 
 
