@@ -17,6 +17,7 @@ struct PlayItem{
     inline ACE_INET_Addr getAddr() const{
         ACE_INET_Addr addr;
         stream->get_remote_addr(addr);
+        return addr;
     }
     std::string name;
     int id;

@@ -42,6 +42,7 @@ public:
                      const std::shared_ptr<unique_set> unique_addr_):
             playlist(playlist_) , unique_addr(unique_addr_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
+        printf("Connection received\n");
         ProducerInputHandler *h;
         ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
         sh = h;
