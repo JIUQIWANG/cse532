@@ -8,7 +8,7 @@ using namespace std;
 int main(int argc, char** argv){
 	if(argc > 2){
 		cerr << "Usage: "<<argv[0] << "[port]"<<endl;
-		return returnType::EARGUMENT;
+		return returnType::E_ARGUMENT;
 	}
 	unsigned short port;
 	if(argc == 1)
@@ -17,14 +17,14 @@ int main(int argc, char** argv){
 		port = std::atoi(argv[1]);
 
 	SignalHandler* sighandler;
-	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::EMEMORY);
+	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
 	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
 
 
 
 	try {
 		Producer *producer;
-		ACE_NEW_RETURN(producer, Producer(port), returnType::EMEMORY);
+		ACE_NEW_RETURN(producer, Producer(port), returnType::E_MEMORY);
 		while (true) {
 			if (SignalHandler::is_interrupted()) {
 				break;
@@ -33,7 +33,7 @@ int main(int argc, char** argv){
 		}
 	}catch(runtime_error e){
 		cerr << e.what() << endl;
-		return returnType::EOTHER;
+		return returnType::E_OTHER;
 	}
 
 	return returnType::SUCCESS;

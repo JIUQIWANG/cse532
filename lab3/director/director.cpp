@@ -25,12 +25,12 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 		num_players = std::max(minimum_num_players, max_players_consecutive);
 
 	//Make Director Active Object with a thread to continue work
-	packaged_task<string()> task(bind(&Director::work, this));
+	packaged_task<int()> task(bind(&Director::work, this));
 	workException = task.get_future();
 	workplay = thread(move(task));
 }
 
-string Director::work(){
+int Director::work(){
 	//Continue pull script ID and call cue(id) to play the specific script
 	while(!isFinished.load()){
 		unique_lock<mutex> guard(mt);
@@ -39,6 +39,7 @@ string Director::work(){
 		cue(id);
 		play_queue.pop_front();
 	}
+	return 0;
 }
 
 //Return formatted play list

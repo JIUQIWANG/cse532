@@ -8,7 +8,12 @@ set(HEADER_FILES producer.h producer_acceptor.h playlist.h liveness_checker.h ..
 
 add_executable(producer ${SOURCE_FILES} ${HEADER_FILES})
 
-target_link_libraries(producer ACE)
+if(WIN32)
+	target_link_libraries(producer ACEd)
+else(WIN32)
+	target_link_libraries(producer ACE)
+endif(WIN32)
+
 if(${CMAKE_SYSTEM} MATCHES "Linux")
   target_link_libraries(producer pthread)
 endif(${CMAKE_SYSTEM} MATCHES "Linux")

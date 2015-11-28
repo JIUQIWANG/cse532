@@ -12,6 +12,7 @@
 #include <future>
 #include <vector>
 #include <deque>
+#include <atomic>
 
 class Play;
 class Player;
@@ -42,7 +43,7 @@ public:
 	std::string stop(int id);
 	std::string parseCommand(const std::string& command);
 	std::string getPlayList() const;
-	std::string work();
+	int work();
 	inline void quit(){
 
 	}
@@ -68,7 +69,7 @@ private:
 	std::vector<std::shared_ptr<Player> > players;
 	std::vector<std::future<int> > exceptionHandlers;
 	std::deque<int> play_queue;
-	mutable std::future<std::string> workException;
+	mutable std::future<int> workException;
 	std::thread workplay;
 	mutable std::mutex mt;
 	mutable std::mutex mu;

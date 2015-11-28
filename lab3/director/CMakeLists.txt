@@ -7,7 +7,12 @@ set(SOURCE_FILES director_cli.cpp director.cpp director_acceptor.cpp liveness_se
 set(HEADER_FILES director_acceptor.h director.h liveness_sender.h ../sender.h play.h player.h ../string_util.h ../common.h ../signal_handler.h)
 
 add_executable(director ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(director ACE)
+
+if(WIN32)
+	target_link_libraries(director ACEd)
+else(WIN32)
+	target_link_libraries(director ACE)
+endif(WIN32)
 
 if(${CMAKE_SYSTEM} MATCHES "Linux")
   target_link_libraries(director pthread)

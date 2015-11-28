@@ -44,28 +44,28 @@ int main(int argc, char** argv) {
 	cout << "Remote address: " << addr_str << endl;
 	remote_addr.string_to_addr(addr_str.c_str());
 	DirectorAcceptor* acceptor;
-	ACE_NEW_RETURN(acceptor, DirectorAcceptor(director), returnType::EMEMORY);
+	ACE_NEW_RETURN(acceptor, DirectorAcceptor(director), returnType::E_MEMORY);
 	if(initializeAcceptor(acceptor, local_port) < 0){
 		cerr << "Can not open acceptor!" << endl;
-		return returnType::ECONNECTION;
+		return returnType::E_CONNECTION;
 	}
 
 	ACE_SOCK_Stream stream;
 	ACE_SOCK_Connector connector;
 	if(connector.connect(stream, remote_addr) < 0){
 		cerr << "Can not connect to Producer!" << endl;
-		return returnType::ECONNECTION;
+		return returnType::E_CONNECTION;
 	}
 
 	if(sendPlayList(director, stream, local_port) < 0){
 		cerr << "Can not connect to Producer" << endl;
-		return returnType::ECONNECTION;
+		return returnType::E_CONNECTION;
 	}
 	cout << "Local acceptor opened, port:" << local_port << endl;
 
 	//start main loop
 	SignalHandler* sighandler;
-	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::EMEMORY);
+	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
 //	Liveness_sender* liveness_sender;
 //	ACE_NEW_RETURN(liveness_sender, Liveness_sender(remote_addr, director, local_port), returnType::EMEMORY);EMEMORY
 
