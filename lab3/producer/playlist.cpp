@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const char PlayList::windows_CR = 13;
+
 //remove the play item with certain address
 void PlayList::removeAddr(const ACE_INET_Addr& target_addr) {
 	list<PlayItem>::iterator iter = data.begin();
@@ -32,8 +34,11 @@ void PlayList::printList() const{
 
 bool PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stream)const {
 	for(const auto& v: id_str){
-		if(v < '0' || v > '9')
+		if(v == windows_CR)
+			continue;
+		if(v < '0' || v > '9'){
 			return false;
+		}
 	}
 	int id = std::stoi(id_str);
 	if(id >= data.size())
@@ -48,6 +53,8 @@ bool PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stre
 
 string PlayList::convertId(const std::string &id_str) {
 	for(const auto& v: id_str){
+		if(v == windows_CR)
+			continue;
 		if(v < '0' || v > '9'){
 			cerr << "PlayList::convertId(): invalid id_str" << endl;
 			return string("");
@@ -63,7 +70,7 @@ string PlayList::convertId(const std::string &id_str) {
 	return to_string(iter->id);
 }
 
-void PlayList::checkStatus() {
+void PlayList::checkStatus()q {
 	unique_set addr_to_remove;
 	bool is_updated = false;
 	for(auto& v: data){
