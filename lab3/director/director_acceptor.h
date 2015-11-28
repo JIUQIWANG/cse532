@@ -40,5 +40,5 @@ private:
 
 int sendPlayList(const std::shared_ptr<Director>& director, const ACE_SOCK_Stream& stream, const unsigned short local_port);
 
-int initializeAcceptor(DirectorAcceptor* acceptor, unsigned short& local_port);
+int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port);
 #endif

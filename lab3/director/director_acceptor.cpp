@@ -23,12 +23,12 @@ int sendPlayList(const std::shared_ptr<Director>& director, const ACE_SOCK_Strea
     return 0;
 }
 
-int initializeAcceptor(DirectorAcceptor* acceptor, unsigned short& local_port){
+int initializeAcceptor(DirectorAcceptor& acceptor, unsigned short& local_port){
     //search for an avaliable port
     const unsigned short start_port = 3000;
     const unsigned short end_port = 10000;
     for(unsigned short i=start_port; i<=end_port; i++){
-        if(acceptor->open(ACE_INET_Addr(i)) >= 0){
+        if(acceptor.open(ACE_INET_Addr(i)) >= 0){
             local_port = i;
             return 0;
         }

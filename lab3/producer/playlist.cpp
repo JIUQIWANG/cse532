@@ -70,7 +70,7 @@ string PlayList::convertId(const std::string &id_str) {
 	return to_string(iter->id);
 }
 
-void PlayList::checkStatus()q {
+void PlayList::checkStatus() {
 	unique_set addr_to_remove;
 	bool is_updated = false;
 	for(auto& v: data){
