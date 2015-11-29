@@ -41,7 +41,7 @@ private:
 	Play &play;
 	//Note: in our design, exit() method set 'done' flag to true and wake condition variable to exit the while loop. This only has to be done once during destructing, so we make it private and only be called from destructor.
 	void act(int fragmentid);
-	void actPart(const std::shared_ptr<Part>& part);
+	int actPart(const std::shared_ptr<Part>& part);
 
 	std::deque<std::shared_ptr<Part> > working_queue;
 	std::vector<Line> lines;

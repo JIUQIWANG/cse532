@@ -22,7 +22,6 @@ public:
 
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
 private:
-	void parseCommand(const std::string& str);
     std::shared_ptr<Director> director;
 	static const ACE_Time_Value timeout;
 };

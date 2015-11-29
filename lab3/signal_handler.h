@@ -10,13 +10,16 @@ public:
     SignalHandler(){};
     static inline bool is_interrupted() {return interrupted;}
     static inline void interrupt() {interrupted = true;}
+    static inline bool is_quit() {return quit_flag;}
+    static inline void set_quit_flag(){quit_flag = true;}
     virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
         if(signum == SIGINT){
-            interrupted = true;
+            quit_flag = true;
         }
         return -1;
     }
 private:
     static bool interrupted;
+    static bool quit_flag;
 };
 #endif

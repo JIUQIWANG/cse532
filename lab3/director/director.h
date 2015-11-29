@@ -13,8 +13,14 @@
 #include <vector>
 #include <deque>
 #include <atomic>
+#include <ace/ACE.h>
+#include <ace/SOCK_Stream.h>
+#include "../string_util.h"
+#include "../common.h"
+#include "../signal_handler.h"
+#include "../sender.h"
+#include "play.h"
 
-class Play;
 class Player;
 struct Part;
 
@@ -31,22 +37,42 @@ struct Scene{
 
 class Director{
 public:
-	Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_);
+	Director(unsigned int minimum_num_players_,
+	         const std::vector<std::string> scripts_,
+	         const ACE_SOCK_Stream& stream_);
 	~Director();
 
+	inline void set_localport(const unsigned short local_port_){
+		local_port = local_port_;
+	}
 	//cue(int id) will try to play the script whose ID is id
 	//stop(int id) will stop the corresponding script play
 	//parseCommand() will try to parse the command and call corresponding functions like cue() and stop()
 	//getPlayList() will return the available scripts
 	//work() is a loop to pull available play works from play_queue and call cue() function
-	void cue(int id);
-	std::string stop(int id);
-	std::string parseCommand(const std::string& command);
+	int cue(int id);
+
+	int parseCommand(const std::string& command);
 	std::string getPlayList() const;
 	int work();
+
+	inline void submit(int id){
+		std::lock_guard<std::mutex> guard(mt);
+		play_queue.push_back(id);
+		cv.notify_all();
+	};
+	inline void stop(int id){
+		plays[id]->interrupt();
+	}
 	inline void quit(){
-		lock_guard<mutex> guard(mt);
+		std::lock_guard<std::mutex> guard(mt);
 		play_queue.push_back(finish_token);
+		cv.notify_all();
+	}
+	inline void exit(){
+		std::lock_guard<std::mutex> guard(mt);
+		play_queue.push_front(finish_token);
+		cv.notify_all();
 	}
 private:
 	//isOverride is the variable for extra part 2
@@ -73,9 +99,11 @@ private:
 	mutable std::future<int> workException;
 	std::thread workplay;
 	mutable std::mutex mt;
-	mutable std::mutex mu;
 	mutable std::condition_variable cv;
 	const int finish_token;
+
+	unsigned short local_port;
+	const ACE_SOCK_Stream& stream;
 };
 
 #endif

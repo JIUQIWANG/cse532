@@ -15,6 +15,7 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
 	if(res <= 0)
 		return -1;
     str.append(data);
+    cout << str << endl;
     return parseCommand(str);
 }
 
@@ -37,29 +38,30 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
     remote_addr.addr_to_string(addr_buffer, BUFSIZ);
 
     if (type == Protocal::P_LIST) {
-        if(unique_addr->find(string(addr_buffer)) != unique_addr->end()) {
-            playlist->maintainConnection(remote_addr);
-            return 0;
-        }
-        unique_addr->insert(string(addr_buffer));
         int counter = 0;
         shared_ptr<ACE_SOCK_Stream> director_stream(new ACE_SOCK_Stream());
         ACE_SOCK_Connector connector;
         connector.connect(*director_stream, remote_addr);
-        for (const auto &v: play_title) {
-            PlayItem item(v, counter++, director_stream);
-            playlist->push_back(item);
+        ItemSet itemset(director_stream);
+        for (const auto &v: play_title){
+            PlayItem item(v, counter++);
+            itemset.item.push_back(item);
 		}
+        playlist->push_back(itemset);
         playlist->printList();
         Protocal::printInstruction();
-	}else if(type == Protocal::P_PLAYING){
-
+	}else if(type == Protocal::P_PLAYING) {
+        playlist->occupy(remote_addr);
+        playlist->printList();
+    }else if(type == Protocal::P_FINISH){
+        playlist->release(remote_addr);
+        playlist->printList();
     }else if(type == Protocal::P_QUIT){
         playlist->removeAddr(remote_addr);
-        unique_addr->erase(string(addr_buffer));
-        if(playlist->is_empty())
+        if(playlist->is_empty() && SignalHandler::is_quit())
             SignalHandler::interrupt();
-        playlist->printList();
+        else
+            playlist->printList();
     }
 
     return 0;

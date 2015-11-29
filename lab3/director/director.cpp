@@ -7,8 +7,8 @@
 
 using namespace std;
 
-Director::Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_) :
-	scripts(scripts_), minimum_num_players(minimum_num_players_), max_players_consecutive(0), isOverride(false), finish_token(-1){
+Director::Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_, const ACE_SOCK_Stream& stream_) :
+	scripts(scripts_), minimum_num_players(minimum_num_players_), max_players_consecutive(0), isOverride(false), finish_token(-1), stream(stream_), local_port(-1){
 	//Add mutiple scripts
 	int position = SCRIPTS_START;
 	while(position < (int)scripts.size()){
@@ -30,13 +30,29 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 int Director::work(){
 	//Continue pull script ID and call cue(id) to play the specific script
 	while(true){
+		cout << "Director ready" << endl;
 		unique_lock<mutex> guard(mt);
 		cv.wait(guard, [&]{return !this->play_queue.empty();});
 		int id = play_queue.front();
 		if(id == finish_token)
 			break;
-		cue(id);
+		string command = Protocal::composeCommand(Protocal::P_PLAYING, string(""), local_port);
+		if(Sender::sendMessage(command, stream)){
+			throw runtime_error("Director::work(): connection lost");
+		}
+		int sit = cue(id);
+		if(sit == Situation::S_INTERRUPTED)
+			break;
 		play_queue.pop_front();
+		//clean context
+		plays[id]->reset();
+		players.clear();
+		exceptionHandlers.clear();
+		guard.unlock();
+		string feedback = Protocal::composeCommand(Protocal::P_FINISH, string(""), local_port);
+		if(Sender::sendMessage(feedback, stream) < 0){
+			throw runtime_error("Director::work(): connection lost");
+		}
 	}
 	return 0;
 }
@@ -124,45 +140,54 @@ void Director::storeScript(const string script_name_, int position){
 }
 
 Director::~Director(){
+	workException.get();
 	if(workplay.joinable())
 		workplay.join();
+	//after cleaning, send feedback to producer
+	string str = Protocal::composeCommand(Protocal::P_QUIT, string(""), local_port);
+	Sender::sendMessage(str, stream);
 }
 
-string Director::parseCommand(const string& command){
+int Director::parseCommand(const string& command){
 	string res;
 	//Command is empty
-	
-	return res;
-}
-
-string Director::stop(int id){
-	string res;
-	//If the specific play is not running at all
-	if(!plays[id]->isWorking())
-		res = "Play " + to_string(id) + " is not running";
-	//Otherwise we will stop the specific play
-	else {
-		plays[id]->stop();
-		//In case of race condition between stop() and cue(), we add a mutex here
-		unique_lock<mutex> guard(mu);
-		players.clear();
-		exceptionHandlers.clear();
-		guard.unlock();
-		//After the stop, we still need to reset the specific play member variables
-		plays[id]->reset();
-		res = "Stop Successfully";
+	if(string_util::is_empty(command)){
+		return Situation::S_FAIL;
 	}
-	return res;
+	Protocal::protocalType type;
+	vector<string> arguments;
+	unsigned short remote_port;
+	if(Protocal::parseCommand(command, type, arguments, remote_port) < 0)
+		return Situation::S_FAIL;
+
+	//Command is quit
+	if(type == Protocal::P_QUIT) {
+		cout << "quit" << endl;
+		SignalHandler::interrupt();
+		for(auto& v: plays)
+			v->interrupt();
+		submit(finish_token);
+		return Situation::S_SUCCESS;
+	}
+
+	int play_id = std::stoi(arguments.back());
+	//The operated script ID is invalid
+	if(play_id >= (int)scripts.size() || play_id < 0){
+		return Situation::S_FAIL;
+	}
+
+	//Command is play
+	if (type == Protocal::P_PLAY){
+		submit(play_id);
+	}
+	else if (type == Protocal::P_STOP){
+		stop(play_id);
+	}
+	return Situation::S_SUCCESS;
 }
 
-void Director::cue(int id){
+int Director::cue(int id){
 	int counter = 0;
-	string res;
-
-	//Each time we start playing a new script, players and excpetionHandlers need to be reset
-	players.clear();
-	exceptionHandlers.clear();
-
 	for (unsigned int i = 0; i < num_players; i++){
 		future<int> exceptionHandler;
 		shared_ptr<Player> curplayer(new Player(*(plays[id])));
@@ -170,13 +195,22 @@ void Director::cue(int id){
 		players.push_back(curplayer);
 		exceptionHandlers.push_back(move(exceptionHandler));
 	}
-	cout << scene_titles[id][0] << endl;
+	cout << scene_titles[id].front() << endl;
+
+	//interruptable point
+	if(plays[id]->is_interrupted())
+		return Situation::S_INTERRUPTED;
+
 	//Enter all parts into players.
-	//Here we add a mutex to ensure there will not be race condition when calling stop() function which clear players and exceptionHandlers
-	unique_lock<mutex> guard(mu);
 	for (const auto s : scenes[id]){
+		if(plays[id]->is_interrupted())
+			return Situation::S_INTERRUPTED;
 		for (const auto f : s.fragments){
+			if(plays[id]->is_interrupted())
+				return Situation::S_INTERRUPTED;
 			for (const auto p : f->parts){
+				if(plays[id]->is_interrupted())
+					return Situation::S_INTERRUPTED;
 				players[counter % static_cast<int>(players.size())]->enter(p);
 				counter++;
 			}
@@ -187,8 +221,8 @@ void Director::cue(int id){
 	//Call exit function of each player and try to catch any exceptions
 	for (size_t i = 0; i < players.size(); i++){
 		//If the play is stopped, we will just break the loop
-		if(plays[id]->isStop())
-			break;
+		if(plays[id]->is_interrupted())
+			return Situation::S_INTERRUPTED;
 		players[i]->exit();
 		try{
 			exceptionHandlers[i].get();
@@ -196,15 +230,8 @@ void Director::cue(int id){
 		catch (exception e){
 			plays[id]->interrupt();
 			cerr << e.what() << endl;
+			return Situation::S_INTERRUPTED;
 		}
 	}
-	//Produce corresponding results based on whether or not we stop the play
-	if(plays[id]->isStop())
-		res = "Play Interrupted";
-	else {
-		res = "Play Successfully";
-		plays[id]->reset();
-	}
-	guard.unlock();
-	cout << res << endl;
+	return S_SUCCESS;
 }

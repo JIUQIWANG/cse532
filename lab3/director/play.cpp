@@ -25,7 +25,9 @@ void Play::recite(vector<Line>::iterator& iter, int fragment){
 	//Wait for at most 500 milliseconds, to avoid dead lock when some line numbers are missing
 	//Also we add stop_flag.load() to ensure the recite can end sooner when receiving stop command from producer
 	const auto max_duration = 500;
-	if(cv.wait_for(guard, chrono::milliseconds(max_duration), [=]{return (scene_fragment_counter == fragment && line_counter == iter->id)||stop_flag.load(); })) {
+	if(cv.wait_for(guard, chrono::milliseconds(max_duration), [=]{return (scene_fragment_counter == fragment && line_counter == iter->id) || interrupt_flag.load(); })) {
+		if(interrupt_flag.load())
+			return;
 		if (iter->character != current_character){
 			cout << ' ' << endl;
 			cout << iter->character << endl;
@@ -42,22 +44,7 @@ void Play::recite(vector<Line>::iterator& iter, int fragment){
 void Play::interrupt(){
 	interrupt_flag.store(true);
 	enter_exit_cv.notify_all();
-}
-
-//Set stop_flag
-void Play::stop(){
-	stop_flag.store(true);
 	cv.notify_all();
-}
-
-//Get stop_flag
-bool Play::isStop() {
-	return stop_flag.load();
-}
-
-//Return if the play is playing
-bool Play::isWorking() {
-	return cur != start;
 }
 
 //Reset member variables for next time to play
@@ -67,27 +54,26 @@ void Play::reset() {
 	on_stage = 0;
 	cur = start;
 	cur++;
-	stop_flag.store(false);
+	interrupt_flag.store(false);
 }
 
 //Try to add one player in the specified play
 Situation Play::enter(int enter_scenes){
 	unique_lock<mutex> guard(mt);
 	if (enter_scenes < scene_fragment_counter){
-		return failEnter;
+		return S_FAIL;
 	}
 	else if (enter_scenes == scene_fragment_counter){
 		on_stage++;
-		return successEnter;
+		return S_SUCCESS;
 	}
 	else{
-		//Wait for a max time, to avoid failing entering blocking the whole process. This duration should be much larger than the one in recite
 		enter_exit_cv.wait(guard,  [&]{return enter_scenes == this->scene_fragment_counter || interrupt_flag.load(); });
 		if (interrupt_flag.load())
-			return interrupted;
+			return S_INTERRUPTED;
 
 		on_stage++;
-		return successEnter;
+		return S_SUCCESS;
 	}
 }
 
@@ -96,10 +82,10 @@ Situation Play::exit(){
 	unique_lock<mutex> guard(mt);
 	if (on_stage > 1){
 		on_stage--;
-		return successExit;
+		return S_SUCCESS;
 	}
 	else if (on_stage < 1){
-		return failExit;
+		return S_FAIL;
 	}
 	else{
 		on_stage--;
@@ -112,6 +98,6 @@ Situation Play::exit(){
 		line_counter = 1;
 		current_character = " ";
 		enter_exit_cv.notify_all();
-		return successExit;
+		return S_SUCCESS;
 	}
 }

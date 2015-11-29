@@ -20,34 +20,29 @@
 
 class ProducerInputHandler : public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH> {
 public:
-    inline void setPlayList(const std::shared_ptr<PlayList> playlist_,
-                            const std::shared_ptr<unique_set> unique_addr_) {
+    inline void setPlayList(const std::shared_ptr<PlayList> playlist_) {
         playlist = playlist_;
-        unique_addr = unique_addr_;
     }
     int parseCommand(const std::string& str);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
 private:
     std::shared_ptr<PlayList> playlist;
-    std::shared_ptr<unique_set> unique_addr;
 	static const ACE_Time_Value timeout;
 };
 
 class ProducerAcceptor: public ACE_Acceptor<ProducerInputHandler, ACE_SOCK_Acceptor>{
 public:
-    ProducerAcceptor(const std::shared_ptr<PlayList> playlist_,
-                     const std::shared_ptr<unique_set> unique_addr_):
-            playlist(playlist_) , unique_addr(unique_addr_){}
+    ProducerAcceptor(const std::shared_ptr<PlayList> playlist_):
+            playlist(playlist_){}
     virtual int make_svc_handler(ProducerInputHandler *&sh){
         ProducerInputHandler *h;
         ACE_NEW_RETURN(h, ProducerInputHandler(), -1);
         sh = h;
-        sh->setPlayList(playlist, unique_addr);
+        sh->setPlayList(playlist);
         sh->reactor(reactor());
         return 0;
     }
 private:
     const std::shared_ptr<PlayList> playlist;
-    const std::shared_ptr<unique_set> unique_addr;
 };
 #endif

@@ -2,27 +2,46 @@
 
 using namespace std;
 
+DirectorAgent::DirectorAgent(int argc, char **argv){
+	int minimum_value = stoi(argv[3]);
+	vector<string> scripts;
+	for (int pos = 4; pos < argc; pos++) {
+		scripts.push_back(argv[pos]);
+	}
+	director = shared_ptr<Director>(new Director(minimum_value, scripts, stream));
+
+	//acceptor = shared_ptr<DirectorAcceptor>(new DirectorAcceptor(director));
+	ACE_NEW_NORETURN(acceptor, DirectorAcceptor(director));
+	if(!acceptor){
+		throw runtime_error("Can not allocate acceptor");
+	}
+
+	string addr_str = string(argv[2]) + ':' + string(argv[1]);
+	remote_addr.string_to_addr(addr_str.c_str());
+	cout << "Producer address: "<<addr_str<<endl;
+}
+
+
 DirectorAgent::~DirectorAgent(){
-	acceptor.close();
+	acceptor->close();
 	stream.close();
 }
 
 int DirectorAgent::open(char **argv){
-	ACE_INET_Addr remote_addr;
-	string addr_str = string(argv[2]) + ':' + string(argv[1]);
-	remote_addr.string_to_addr(addr_str.c_str());
-	cout << "Producer address: "<<addr_str<<endl;
-
 	//open acceptor
 	if(initializeAcceptor() < 0){
 		cerr << "Can not open acceptor!" << endl;
+		director->exit();
+		delete acceptor;
 		return returnType::E_CONNECTION;
 	}
 	cout << "Local acceptor opened, port:" << local_port << endl;
+	director->set_localport(local_port);
 
 	//connect to Producer
 	if(connector.connect(stream, remote_addr) < 0){
 		cerr << "Can not connect to Producer!" << endl;
+		director->exit();
 		return returnType::E_CONNECTION;
 	}
 	return returnType::SUCCESS;
@@ -37,11 +56,13 @@ int DirectorAgent::run(){
 
 	if(ACE_Reactor::instance()->register_handler(SIGINT, sighandler) < 0){
 		cerr << "DirectorAgent::run(): failed to register to reactor" << endl;
+		director->exit();
 		return returnType::E_REACTOR;
 	}
 
 	if(sendPlayList() != Sender::SUCCESS){
 		cerr << "Can not connect to Producer" << endl;
+		director->exit();
 		return returnType::E_CONNECTION;
 	}
 
@@ -68,7 +89,7 @@ int DirectorAgent::initializeAcceptor(){
 	const unsigned short start_port = 3000;
 	const unsigned short end_port = 10000;
 	for(unsigned short i=start_port; i<=end_port; i++){
-		if(acceptor.open(ACE_INET_Addr(i)) >= 0){
+		if(acceptor->open(ACE_INET_Addr(i)) >= 0){
 			local_port = i;
 			return 0;
 		}
@@ -77,5 +98,5 @@ int DirectorAgent::initializeAcceptor(){
 }
 
 void DirectorAgent::closeConnection(){
-
+	director->exit();
 }

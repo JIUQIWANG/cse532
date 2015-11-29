@@ -13,33 +13,34 @@
 typedef std::unordered_set<std::string> unique_set;
 
 struct PlayItem{
-    PlayItem(const std::string& name_, const int id_, const std::shared_ptr<ACE_SOCK_Stream>& stream_): name(name_), id(id_), stream(stream_), is_occupied(false), is_connected(true){}
+    PlayItem(const std::string& name_, const int id_): name(name_), id(id_){}
+    std::string name;
+    int id;
+};
+
+struct ItemSet{
+    ItemSet(const std::shared_ptr<ACE_SOCK_Stream> stream_): stream(stream_), item(), is_occupied(false), is_connected(true){}
+    const std::shared_ptr<ACE_SOCK_Stream> stream;
     inline ACE_INET_Addr getAddr() const{
         ACE_INET_Addr addr;
         stream->get_remote_addr(addr);
         return addr;
     }
-    std::string name;
-    int id;
-    const std::shared_ptr<ACE_SOCK_Stream> stream;
+    std::list<PlayItem> item;
     bool is_occupied;
     bool is_connected;
 };
-    
+
 class PlayList{
 public:
 	enum itemStatus{VALID, NOT_FOUND, PLAYING};
     void removeAddr(const ACE_INET_Addr& target_addr);
     void printList() const;
-    inline void push_back(const PlayItem& item){
+    inline void push_back(const ItemSet& item){
         data.push_back(item);
-        char buffer[100] = {};
-        ACE_INET_Addr addr = item.getAddr();
-        addr.addr_to_string(buffer, 100);
-        unique_addr.insert(std::string(buffer));
     }
 
-    inline const std::list<PlayItem>& getList() const{
+    inline const std::list<ItemSet>& getList() const{
         return data;
     }
     inline bool is_empty() const{return data.empty();}
@@ -51,10 +52,10 @@ public:
 	static bool is_number(const std::string& str);
 
     int find(const std::string& id_str, std::shared_ptr<ACE_SOCK_Stream>& stream) const;
-	void occupy(const std::string& id_str, const ACE_INET_Addr& remote_addr);
+	void occupy(const ACE_INET_Addr& remote_addr);
+    void release(const ACE_INET_Addr& remote_addr);
 private:
-    std::list<PlayItem> data;
-    unique_set unique_addr;
+    std::list<ItemSet> data;
 	static const char windows_CR;
 };
 

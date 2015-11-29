@@ -17,11 +17,9 @@ struct Line{
 
 //struct for different situations which returned from enter and exit function of play class
 enum Situation{
-	failEnter = 1,
-	successEnter = 2,
-	failExit = 3,
-	successExit = 4,
-	interrupted = 5
+	S_SUCCESS,
+	S_FAIL,
+	S_INTERRUPTED
 };
 
 class Play
@@ -29,7 +27,6 @@ class Play
 public:
 	Play(std::vector<std::string>& names_) :start(names_.begin()), cur(names_.begin()), end(names_.end()), line_counter(1), scene_fragment_counter(0), on_stage(0), is_sorted(false){
 		interrupt_flag.store(false);
-		stop_flag.store(false);
 		if (names_.size() > 0){
 			//std::cout << (*cur) << std::endl;
 			cur++;
@@ -45,14 +42,10 @@ public:
 
 
 	//Set interrupt_flag
-	//Set stop_flag
-	//Get stop_flag
 	//Get whether or not the play is running
 	//Reset necessary variables for next use
 	void interrupt();
-	void stop();
-	bool isStop();
-	bool isWorking();
+	inline bool is_interrupted(){return interrupt_flag.load();}
 	void reset();
 private:
 	//start stores names_.start() which is used to reset the cur variable

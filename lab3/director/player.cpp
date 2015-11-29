@@ -23,26 +23,31 @@ int Player::read(){
 
 		shared_ptr<Part> part = working_queue.front();
 		working_queue.pop_front();
-		if(part->fragmentid == TERMINATION_TOKEN)
+		if(part->fragmentid == TERMINATION_TOKEN) {
+			working_queue.clear();
 			break;
-		actPart(part);
+		}
+		int sit = actPart(part);
+		if(sit != Situation::S_SUCCESS)
+			break;
 	}
 	return 0;
 }
 
 //Act specified part
-void Player::actPart(const std::shared_ptr<Part> &part){
+int Player::actPart(const std::shared_ptr<Part> &part){
 	lines.clear();
 	Situation entersit = play.enter(part->fragmentid);
-	if (entersit != Situation::successEnter){
+	if (entersit == Situation::S_FAIL){
 		throw runtime_error("player " + part->str.first + " enter failed");
-	}
+	}else if(entersit == Situation::S_INTERRUPTED)
+		return Situation::S_INTERRUPTED;
 
 	string tempstr;
 	ifstream fin(part->str.second.c_str());
 	if(!fin.is_open()){
 		cerr << "Can not open file "<< part->str.second<<endl << flush;
-		return;
+		return Situation::S_FAIL;
 	}
 	while (std::getline(fin, tempstr)){
 		Line templine;
@@ -56,16 +61,17 @@ void Player::actPart(const std::shared_ptr<Part> &part){
 
 	//After acting, exit the stage
 	Situation exitsit = play.exit();
-	if (exitsit != successExit){
-		cerr << "Player " <<part->str.second << " failed to exit!" << endl << flush;
-		throw runtime_error("player exit failed");
-	}
+	if (exitsit == Situation::S_FAIL){
+		throw runtime_error("Player " + part->str.second + " failed to exit!");
+	}else if(exitsit == Situation::S_INTERRUPTED)
+		return Situation::S_INTERRUPTED;
+	return Situation::S_SUCCESS;
 }
 
 //call recite() function of Play
 void Player::act(int fragmentid){
 	vector<Line>::iterator iter = lines.begin();
-	while (iter != lines.end() && !play.isStop()){
+	while (iter != lines.end() && !play.is_interrupted()){
 		play.recite(iter, fragmentid);
 	}
 }

@@ -8,8 +8,7 @@
 
 class DirectorAgent{
 public:
-	DirectorAgent(std::shared_ptr<Director> director_):
-		local_port(0), director(director_), acceptor(director_), stream(), connector(){}
+	DirectorAgent(int argc, char** argv);
 
 	int open(char **argv);
 	int run();
@@ -22,8 +21,9 @@ private:
 
 	unsigned short local_port;
 	std::shared_ptr<Director> director;
-	DirectorAcceptor acceptor;
+	DirectorAcceptor* acceptor;
 	ACE_SOCK_Stream stream;
 	ACE_SOCK_Connector connector;
+	ACE_INET_Addr remote_addr;
 };
 #endif

@@ -26,9 +26,12 @@ int main(int argc, char** argv){
 		Producer *producer;
 		ACE_NEW_RETURN(producer, Producer(port), returnType::E_MEMORY);
 		while (true) {
-			if (SignalHandler::is_interrupted()) {
-				break;
+			if (SignalHandler::is_quit()) {
+				if(producer->close() < 0)
+					throw runtime_error("Failed to quit");
 			}
+			if(SignalHandler::is_interrupted())
+				break;
 			ACE_Reactor::instance()->handle_events();
 		}
 	}catch(runtime_error e){

@@ -18,14 +18,9 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	shared_ptr<Director> director;
+	shared_ptr<DirectorAgent> agent;
 	try {
-		int minimum_value = stoi(argv[3]);
-		vector<string> scripts;
-		for (int pos = 4; pos < argc; pos++) {
-			scripts.push_back(argv[pos]);
-		}
-		director = shared_ptr<Director>(new Director(minimum_value, scripts));
+		agent = shared_ptr<DirectorAgent>(new DirectorAgent(argc, argv));
 	}
 	catch (exception e) {
 		cerr << e.what() << endl;
@@ -33,11 +28,9 @@ int main(int argc, char** argv) {
 	}
 
 	//start main loop
-	DirectorAgent agent(director);
-	int openStatus = agent.open(argv);
+	int openStatus = agent->open(argv);
 	if(openStatus != returnType::SUCCESS)
 	    return openStatus;
-	return agent.run();
-
+	return agent->run();
 }
 
