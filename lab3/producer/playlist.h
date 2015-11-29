@@ -36,6 +36,7 @@ public:
 	enum itemStatus{VALID, NOT_FOUND, PLAYING};
     void removeAddr(const ACE_INET_Addr& target_addr);
     void printList() const;
+    void printAddress() const;
     inline void push_back(const ItemSet& item){
         data.push_back(item);
     }

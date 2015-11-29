@@ -20,8 +20,6 @@ int main(int argc, char** argv){
 	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
 	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
 
-
-
 	try {
 		Producer *producer;
 		ACE_NEW_RETURN(producer, Producer(port), returnType::E_MEMORY);
@@ -29,12 +27,12 @@ int main(int argc, char** argv){
 			if(SignalHandler::is_interrupted())
 				break;
 			ACE_Reactor::instance()->handle_events();
-			if (SignalHandler::is_quit()) {
+			if (SignalHandler::is_quit()) { ;
 				if(producer->close() < 0)
 					throw runtime_error("Failed to quit");
 			}
 		}
-	}catch(runtime_error e){
+	}catch(const runtime_error& e){
 		cerr << e.what() << endl;
 		return returnType::E_OTHER;
 	}

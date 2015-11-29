@@ -41,7 +41,6 @@ int DirectorAgent::open(char **argv){
 	//connect to Producer
 	if(connector.connect(stream, remote_addr) < 0){
 		cerr << "Can not connect to Producer!" << endl;
-		director->exit();
 		return returnType::E_CONNECTION;
 	}
 	return returnType::SUCCESS;
@@ -50,19 +49,16 @@ int DirectorAgent::open(char **argv){
 int DirectorAgent::run(){
 	SignalHandler* sighandler;
 	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
-	//	Liveness_sender* liveness_sender;
-	//	ACE_NEW_RETURN(liveness_sender, Liveness_sender(remote_addr, director, local_port), returnType::EMEMORY);EMEMORY
 	const ACE_Time_Value report_interval(1,0);
 
 	if(ACE_Reactor::instance()->register_handler(SIGINT, sighandler) < 0){
 		cerr << "DirectorAgent::run(): failed to register to reactor" << endl;
-		director->exit();
+		//director->exit();
 		return returnType::E_REACTOR;
 	}
 
 	if(sendPlayList() != Sender::SUCCESS){
 		cerr << "Can not connect to Producer" << endl;
-		director->exit();
 		return returnType::E_CONNECTION;
 	}
 
@@ -96,9 +92,7 @@ int DirectorAgent::initializeAcceptor(){
 }
 
 void DirectorAgent::closeConnection(){
-	director->exit();
 	//after cleaning, send feedback to producer
 	string str = Protocal::composeCommand(Protocal::P_QUIT, string(""), local_port);
 	Sender::sendMessage(str, stream);
-
 }

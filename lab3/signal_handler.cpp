@@ -1,4 +1,4 @@
 #include "signal_handler.h"
 
-bool SignalHandler::interrupted = false;
-bool SignalHandler::quit_flag = false;
+std::atomic<bool> SignalHandler::interrupt_flag;
+std::atomic<bool> SignalHandler::quit_flag;

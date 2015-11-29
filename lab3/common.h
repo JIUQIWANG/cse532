@@ -17,6 +17,7 @@ public:
         P_PLAYING,
 		P_FINISH,
         P_STOP,
+        P_CHECK,
         P_QUIT
     };
 

@@ -10,7 +10,7 @@
 class Sender{
 public:
 	enum sendStatus{SUCCESS, E_SEND, E_RESPONSE};
-	static int sendMessage(const std::string& str, const ACE_SOCK_Stream& stream);
+	static int sendMessage(const std::string& str, const ACE_SOCK_Stream& stream, bool quiet = false);
 private:
 	static const ACE_Time_Value timeout;
 	static char response[BUFSIZ];

@@ -10,13 +10,11 @@ int DirectorInputHandler::handle_input(ACE_HANDLE h){
     ACE_SOCK_Stream& stream = peer();
     string str;
     ssize_t res = stream.recv(data,BUFSIZ);
-    cout << data << ' ' << res << ' ';
     if(res <= 0)
         return -1;
 	res = stream.send_n("K", 1, &timeout);
 	if(res <= 0)
 		return -1;
-    cout << "response sent" << endl;
     str.append(data);
     director->parseCommand(str);
     return 0;

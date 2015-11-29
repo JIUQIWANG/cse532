@@ -48,8 +48,11 @@ int Protocal::parseCommand(const std::string& str, protocalType& type, std::vect
 	}else if(str_split.front().compare("<stop>") == 0) {
 		type = P_STOP;
 		arguments.push_back(mid);
-	}else if(str_split.front().compare("<finish>") == 0){
+	}else if(str_split.front().compare("<finish>") == 0) {
 		type = P_FINISH;
+		arguments.push_back(mid);
+	}else if(str_split.front().compare("<check>") == 0){
+		type = P_CHECK;
 		arguments.push_back(mid);
 	}else{
 		cout << "Protocal::parseCommand(): protocal error, omit command: " << str_split[0] << endl;
@@ -78,6 +81,9 @@ std::string Protocal::composeCommand(const protocalType& type, const std::vector
 			break;
 		case P_QUIT:
 			str.append("<quit> ");
+			break;
+		case P_CHECK:
+			str.append("<check>");
 			break;
 		default:
 			cerr << "Protocal::composeCommand(): invalid command type!" << endl;

@@ -10,6 +10,8 @@
 #include <ace/Reactor.h>
 #include <memory>
 #include "playlist.h"
+#include "../common.h"
+#include "../sender.h"
 
 class LivenessChecker: public ACE_Event_Handler {
 public:

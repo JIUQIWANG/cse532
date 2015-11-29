@@ -9,18 +9,18 @@ using namespace std;
 const ACE_Time_Value Sender::timeout = ACE_Time_Value(5);
 char Sender::response[BUFSIZ] = {};
 
-int Sender::sendMessage(const std::string& str, const ACE_SOCK_Stream& stream){
+int Sender::sendMessage(const std::string& str, const ACE_SOCK_Stream& stream, bool quiet){
 	ssize_t res = stream.send_n(str.c_str(), (int)str.size(), &timeout);
-	cout << "sending " << str << ' '<< res << ' ' << flush;
 	if(res != (ssize_t)str.size()){
-		cerr << "Sender::sendMessage(): sending timeout!"<<endl;
+		if(!quiet)
+			cerr << "Sender::sendMessage(): sending timeout!"<<endl;
 		return E_SEND;
 	}
 	res = stream.recv(response, 1, &timeout);
 	if(res <= 0){
-		cerr << "Sender::sendMessage(): response timeout!" << endl;
+		if(!quiet)
+			cerr << "Sender::sendMessage(): response timeout!" << endl;
 		return E_RESPONSE;
 	}
-	cout << "response received" << endl;
 	return SUCCESS;
 }

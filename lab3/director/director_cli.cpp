@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	try {
 		agent = shared_ptr<DirectorAgent>(new DirectorAgent(argc, argv));
 	}
-	catch (exception e) {
+	catch (const runtime_error& e) {
 		cerr << e.what() << endl;
 		return RETURN_SCRIPT_FILE_NOT_FOUND;
 	}

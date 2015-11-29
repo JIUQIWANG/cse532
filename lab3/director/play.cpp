@@ -80,6 +80,7 @@ Situation Play::enter(int enter_scenes){
 
 //Try to exit one player in current play
 Situation Play::exit(){
+	return S_FAIL;
 	unique_lock<mutex> guard(mt);
 	if (on_stage > 1){
 		on_stage--;

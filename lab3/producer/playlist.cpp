@@ -39,6 +39,17 @@ void PlayList::printList() const{
 	cout << "---------------------------" << endl;
 }
 
+void PlayList::printAddress() const{
+	if(is_empty()){
+		cout << "No director connected" << endl;
+		return;
+	}
+	for(const auto& v:data){
+		char addrbuffer[BUFSIZ];
+		v.getAddr().addr_to_string(addrbuffer, BUFSIZ);
+		cout << addrbuffer << endl;
+	}
+}
 int PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stream)const {
 	if(!is_number(id_str))
 		return itemStatus::NOT_FOUND;

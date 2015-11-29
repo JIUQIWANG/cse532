@@ -35,7 +35,7 @@ Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port
     if(checker == nullptr){
         throw runtime_error("Producer::Producer(): Failed to allocate LivenessChecker");
     }
-    //reactor->schedule_timer(checker, 0, check_interval, check_interval);
+    reactor->schedule_timer(checker, 0, check_interval, check_interval);
     cout << "Waiting for director..." << endl;
 }
 
@@ -81,12 +81,15 @@ int Producer::handleKeyboard(const string& str){
         return -1;
     }
 
-    ACE_INET_Addr remote_addr;
 	int status = playlist->find(str_split.back(), stream);
     if(status == PlayList::NOT_FOUND){
         cerr << "Invalid script id!" << endl;
         return -1;
     }
+    ACE_INET_Addr remote_addr;
+    stream->get_remote_addr(remote_addr);
+    char addr_buffer[BUFSIZ];
+    remote_addr.addr_to_string(addr_buffer, BUFSIZ);
 
     string id_converted = playlist->convertId(str_split.back());
     if(id_converted.size() == 0){
@@ -112,14 +115,23 @@ int Producer::handleKeyboard(const string& str){
     }
 
     send_token = Sender::sendMessage(command, *stream);
+    if(send_token < 0){
+        cerr << "Connection to " << addr_buffer << "lost, remote all scripts from it" << endl;
+        playlist->removeAddr(remote_addr);
+        cout << "Current list:" << endl;
+        playlist->printList();
+    }
     return send_token;
 }
 
 int Producer::close(){
     //only handle close event once
+    if(playlist->is_empty()){
+        SignalHandler::interrupt();
+        return 0;
+    }
     if(SignalHandler::is_quit())
         return 0;
-
     SignalHandler::set_quit_flag();
     string command = Protocal::composeCommand(Protocal::P_QUIT, string(""), port);
     vector<ACE_INET_Addr> addr_to_remove;
@@ -131,8 +143,13 @@ int Producer::close(){
     for(const auto&v: addr_to_remove){
         playlist->removeAddr(v);
     }
+    if(playlist->is_empty()){
+        SignalHandler::interrupt();
+        return 0;
+    }
+
     cout << "Waiting following client to quit: " << endl;
-    playlist->printList();
+    playlist->printAddress();
 
     //wait for check_interval, register a timer event
     QuitTimer* h = nullptr;

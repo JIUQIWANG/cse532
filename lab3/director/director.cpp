@@ -30,31 +30,49 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 int Director::work(){
 	//Continue pull script ID and call cue(id) to play the specific script
 	while(true){
-		cout << "Director ready" << endl;
-		unique_lock<mutex> guard(mt);
-		cv.wait(guard, [&]{return !this->play_queue.empty();});
-		int id = play_queue.front();
-		if(id == finish_token)
-			break;
-		string command = Protocal::composeCommand(Protocal::P_PLAYING, string(""), local_port);
-		if(Sender::sendMessage(command, stream)){
-			throw runtime_error("Director::work(): connection lost");
-		}
-		int sit = cue(id);
-		if(sit == Situation::S_INTERRUPTED){
-			for(auto&v: players)
-				v->interrupt();
-		}
-		play_queue.pop_front();
-		//clean context
-		plays[id]->reset();
-		players.clear();
-		exceptionHandlers.clear();
-		guard.unlock();
-		string feedback = Protocal::composeCommand(Protocal::P_FINISH, string(""), local_port);
-		if(Sender::sendMessage(feedback, stream) < 0){
-			cerr << "Connection lost" << endl;
+		try {
+			unique_lock<mutex> guard(mt);
+			cv.wait(guard, [&] { return !this->play_queue.empty(); });
+			int id = play_queue.front();
+			if (id == finish_token)
+				break;
+			//the sendingMessage method will be called in both main thread and working thread, to avoid race condition, these two
+			//calls are separated by the atomic<bool> variable inside SignalHandler. More specifically, working can only call
+			//sendMessage before quit_flag is set, and the main thread can only call this method after quit_flag is set.
+			if (SignalHandler::is_quit())
+				break;
+			string command = Protocal::composeCommand(Protocal::P_PLAYING, string(""), local_port);
+			if (Sender::sendMessage(command, stream)) {
+				cerr << "Connection lost" << endl;
+				SignalHandler::set_quit_flag();
+				break;
+			}
+			int sit = cue(id);
+			if (sit == Situation::S_INTERRUPTED) {
+				for (auto &v: players)
+					v->interrupt();
+			}
+			play_queue.pop_front();
+			//clean context
+			plays[id]->reset();
+			players.clear();
+			exceptionHandlers.clear();
+			guard.unlock();
+
+			if (SignalHandler::is_quit())
+				break;
+			string feedback = Protocal::composeCommand(Protocal::P_FINISH, string(""), local_port);
+			if (Sender::sendMessage(feedback, stream) < 0) {
+				cerr << "Connection lost" << endl;
+				SignalHandler::set_quit_flag();
+				break;
+			}
+		}catch(const exception& e){
+			cerr << "Director::work(): exception caught! Quit" << endl;
+			play_queue.clear();
+			exceptionHandlers.clear();
 			SignalHandler::set_quit_flag();
+			break;
 		}
 	}
 	return 0;
@@ -143,7 +161,13 @@ void Director::storeScript(const string script_name_, int position){
 }
 
 Director::~Director(){
-	workException.get();
+	//call exit() method to ensure the working thread won't block the deconstruction
+	exit();
+	try {
+		workException.get();
+	}catch(const runtime_error& e){
+		cout << e.what() << endl;
+	}
 	if(workplay.joinable())
 		workplay.join();
 }
@@ -159,6 +183,9 @@ int Director::parseCommand(const string& command){
 	unsigned short remote_port;
 	if(Protocal::parseCommand(command, type, arguments, remote_port) < 0)
 		return Situation::S_FAIL;
+
+	if(type == Protocal::P_CHECK)
+		return S_SUCCESS;
 
 	//Command is quit
 	if(type == Protocal::P_QUIT) {
@@ -217,8 +244,11 @@ int Director::cue(int id){
 			}
 		}
 	}
-	if (players.size() != exceptionHandlers.size())
-		throw runtime_error("Exception: palyers.size() != exceptionHandlers.size()");
+	if (players.size() != exceptionHandlers.size()){
+		cerr << "Director::cue(): assertion failed: players.size() == exceptionHandlers.size()" << endl;
+		return S_FAIL;
+	}
+
 	//Call exit function of each player and try to catch any exceptions
 	for (size_t i = 0; i < players.size(); i++){
 		//If the play is stopped, we will just break the loop
@@ -228,10 +258,10 @@ int Director::cue(int id){
 		try{
 			exceptionHandlers[i].get();
 		}
-		catch (exception e){
+		catch (const runtime_error& e){
 			plays[id]->interrupt();
-			cerr << e.what() << endl;
-			return Situation::S_INTERRUPTED;
+			cout << e.what() << endl;
+			return S_INTERRUPTED;
 		}
 	}
 	return S_SUCCESS;
