@@ -49,7 +49,7 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
         for (const auto &v: play_title) {
             PlayItem item(v, counter++, director_stream);
             playlist->push_back(item);
-        }
+		}
         playlist->printList();
         Protocal::printInstruction();
 	}else if(type == Protocal::P_PLAYING){
