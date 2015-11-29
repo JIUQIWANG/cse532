@@ -40,7 +40,7 @@ int Producer::handle_input(ACE_HANDLE h){
             return -1;
         if(buf[0] == '\n')
             return 0;
-        for(int i=0; i<strlen(buf); i++){
+        for(size_t i=0; i<strlen(buf); i++){
             if(buf[i] == '\n')
                 break;
             str += buf[i];
@@ -68,7 +68,8 @@ int Producer::handleKeyboard(const string& str){
     }
 
     ACE_INET_Addr remote_addr;
-    if(!playlist->find(str_split.back(), stream)){
+	int status = playlist->find(str_split.back(), stream);
+    if(status == PlayList::NOT_FOUND){
         cerr << "Invalid script id!" << endl;
         return -1;
     }
@@ -80,23 +81,23 @@ int Producer::handleKeyboard(const string& str){
     }
 
     if(str_split.front().compare("play") == 0){
+		if(status == PlayList::PLAYING){
+			cerr << "Script now playing..."<<endl;
+			return -1;
+		}
         command = Protocal::composeCommand(Protocal::P_PLAY, id_converted, port);
     }else if(str_split.front().compare("stop") == 0){
+		if(status == PlayList::VALID){
+			cerr << "Script is not playing." << endl;
+			return -1;
+		}
         command = Protocal::composeCommand(Protocal::P_STOP, id_converted, port);
     }else{
         cerr << "Invalid command." << endl;
         return -1;
     }
 
-    char buffer_addr[BUFSIZ];
-    stream->get_remote_addr(remote_addr);
-    remote_addr.addr_to_string(buffer_addr, BUFSIZ);
-    cout << "Remote address: " << buffer_addr << endl;
-    ssize_t res = stream->send(command.c_str(), (int)command.size());
-    cout << res << " bytes sent" << endl;
-    if(res < 0)
-        return -1;
-    return 0;
+    return Sender::sendMessage(command, *stream);
 }
 
 void Producer::close(){

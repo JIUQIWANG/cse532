@@ -28,6 +28,7 @@ struct PlayItem{
     
 class PlayList{
 public:
+	enum itemStatus{VALID, NOT_FOUND, PLAYING};
     void removeAddr(const ACE_INET_Addr& target_addr);
     void printList() const;
     inline void push_back(const PlayItem& item){
@@ -47,7 +48,10 @@ public:
     void maintainConnection(const ACE_INET_Addr& addr);
     std::string convertId(const std::string& id_str);
 
-    bool find(const std::string& id_str, std::shared_ptr<ACE_SOCK_Stream>& stream) const;
+	static bool is_number(const std::string& str);
+
+    int find(const std::string& id_str, std::shared_ptr<ACE_SOCK_Stream>& stream) const;
+	void occupy(const std::string& id_str, const ACE_INET_Addr& remote_addr);
 private:
     std::list<PlayItem> data;
     unique_set unique_addr;

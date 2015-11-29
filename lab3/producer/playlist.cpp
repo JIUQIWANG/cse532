@@ -18,56 +18,72 @@ void PlayList::removeAddr(const ACE_INET_Addr& target_addr) {
 }
 
 void PlayList::printList() const{
-    list<PlayItem>::const_iterator iter = data.begin();
+	system("cls");
 	cout << "Current PlayList" << endl;
 	int id = 0;
 	cout << "---------------------------" << endl;
-    for(; iter!=data.end(); ++iter) {
-	    cout << id++ << '\t' << iter->name << "\t from:";
+    for(const auto& v: data) {
+	    cout << id++ << '\t' << v.name << "\t from:";
 	    char addrbuffer[BUFSIZ];
-	    iter->getAddr().addr_to_string(addrbuffer, BUFSIZ);
-		cout << addrbuffer << endl;
+	    v.getAddr().addr_to_string(addrbuffer, BUFSIZ);
+		cout << addrbuffer << '\t';
+		if(v.is_occupied)
+			cout << "Playing" << endl;
+		else
+			cout << "Ready" << endl;
     }
 	cout << "---------------------------" << endl;
-
 }
 
-bool PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stream)const {
-	for(const auto& v: id_str){
-		if(v == windows_CR)
-			continue;
-		if(v < '0' || v > '9'){
-			return false;
-		}
-	}
+int PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stream)const {
+	if(!is_number(id_str))
+		return itemStatus::NOT_FOUND;
 	int id = std::stoi(id_str);
-	if(id >= data.size())
-		return false;
+	if(id >= (int)data.size())
+		return itemStatus::NOT_FOUND;
 	list<PlayItem>::const_iterator iter = data.begin();
 	int i = 0;
 	while(i++ < id)
 		iter++;
+	if(iter->is_occupied)
+		return itemStatus::PLAYING;
 	stream = iter->stream;
-	return true;
+	return itemStatus::VALID;
 }
 
 string PlayList::convertId(const std::string &id_str) {
-	for(const auto& v: id_str){
-		if(v == windows_CR)
-			continue;
-		if(v < '0' || v > '9'){
-			cerr << "PlayList::convertId(): invalid id_str" << endl;
-			return string("");
-		}
-	}
+	if(!is_number(id_str))
+		return string("");
 	int id = stoi(id_str);
-	if(id >= data.size())
+	if(id >= (int)data.size())
 		return string("");
 	list<PlayItem>::iterator iter = data.begin();
 	int i=0;
 	while(i++ < id)
 		iter++;
 	return to_string(iter->id);
+}
+
+bool PlayList::is_number(const string& str){
+	for(const auto& v: str){
+		if(v == windows_CR)
+			continue;
+		if(v < '0' || v > '9')
+			return false;
+	}
+	return true;
+}
+
+void PlayList::occupy(const std::string& id_str, const ACE_INET_Addr& remote_addr){
+	if(!is_number(id_str))
+		return;
+	int id = stoi(id_str);
+	for(auto& v: data){
+		if(v.getAddr() != remote_addr)
+			continue;
+		if(v.id == id)
+			v.is_occupied = true;
+	}
 }
 
 void PlayList::checkStatus() {

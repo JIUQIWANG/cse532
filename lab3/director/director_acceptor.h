@@ -11,6 +11,8 @@
 #include <memory>
 #include <string>
 #include "director.h"
+#include "../string_util.h"
+#include "../signal_handler.h"
 #include "../sender.h"
 
 class DirectorInputHandler: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
@@ -20,6 +22,7 @@ public:
 
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
 private:
+	void parseCommand(const std::string& str);
     std::shared_ptr<Director> director;
 	static const ACE_Time_Value timeout;
 };

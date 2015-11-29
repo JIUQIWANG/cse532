@@ -1,18 +1,15 @@
 #include "director.h"
-#include "../common.h"
-#include "../sender.h"
 #include "play.h"
 #include "player.h"
-#include "../signal_handler.h"
 
 #define INVALID_LINES_NUM -1
 #define SCRIPTS_START 0
 
 using namespace std;
 
-Director::Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_) :scripts(scripts_), minimum_num_players(minimum_num_players_), max_players_consecutive(0), isOverride(false){
+Director::Director(unsigned int minimum_num_players_, const std::vector<std::string> scripts_) :
+	scripts(scripts_), minimum_num_players(minimum_num_players_), max_players_consecutive(0), isOverride(false), finish_token(-1){
 	//Add mutiple scripts
-	isFinished.store(false);
 	int position = SCRIPTS_START;
 	while(position < (int)scripts.size()){
 		storeScript(scripts[position], position);
@@ -32,10 +29,12 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 
 int Director::work(){
 	//Continue pull script ID and call cue(id) to play the specific script
-	while(!isFinished.load()){
+	while(true){
 		unique_lock<mutex> guard(mt);
 		cv.wait(guard, [&]{return !this->play_queue.empty();});
 		int id = play_queue.front();
+		if(id == finish_token)
+			break;
 		cue(id);
 		play_queue.pop_front();
 	}
@@ -132,42 +131,7 @@ Director::~Director(){
 string Director::parseCommand(const string& command){
 	string res;
 	//Command is empty
-	if(string_util::is_empty(command)){
-		res = "Empty Command";
-		return res;
-	}
-	Protocal::protocalType type;
-	vector<string> arguments;
-	unsigned short remote_port;
-	Protocal::parseCommand(command, type, arguments, remote_port);
-	//Command is quit
-	if(type == Protocal::P_QUIT) {
-		cout << "quit" << endl;
-		SignalHandler::interrupt();
-		isFinished.store(true);
-		res = "Quit!";
-		return res;
-	}
-
-	int play_id = std::stoi(arguments.back());
-	//The operated script ID is invalid
-	if(play_id >= (int)scripts.size() || play_id < 0){
-		res = "Invalid Script ID";
-		return res;
-	}
-
-	//Command is play
-	if (type == Protocal::P_PLAY){
-		unique_lock<mutex> guard(mt);
-		play_queue.push_back(play_id);
-		guard.unlock();
-		res = "Add " + to_string(play_id) + " in the play queue";
-		cv.notify_all();
-	}
-	//Command is stop
-	else if (type == Protocal::P_STOP){
-		res = stop(play_id);
-	}
+	
 	return res;
 }
 

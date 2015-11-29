@@ -13,7 +13,8 @@ public:
     enum protocalType{
         P_LIST,
         P_PLAY,
-        P_OCCUPIED,
+        P_PLAYING,
+		P_FINISH,
         P_STOP,
         P_QUIT
     };

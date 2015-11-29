@@ -52,6 +52,8 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
         }
         playlist->printList();
         Protocal::printInstruction();
+	}else if(type == Protocal::P_PLAYING){
+
     }else if(type == Protocal::P_QUIT){
         playlist->removeAddr(remote_addr);
         unique_addr->erase(string(addr_buffer));

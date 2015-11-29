@@ -45,7 +45,8 @@ public:
 	std::string getPlayList() const;
 	int work();
 	inline void quit(){
-
+		lock_guard<mutex> guard(mt);
+		play_queue.push_back(finish_token);
 	}
 private:
 	//isOverride is the variable for extra part 2
@@ -74,7 +75,7 @@ private:
 	mutable std::mutex mt;
 	mutable std::mutex mu;
 	mutable std::condition_variable cv;
-	std::atomic<bool> isFinished;
+	const int finish_token;
 };
 
 #endif

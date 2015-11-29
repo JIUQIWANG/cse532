@@ -19,7 +19,7 @@ int Protocal::parseCommand(const std::string& str, protocalType& type, std::vect
 	for(int i=1; i<str_split.size()-1; ++i)
 		mid.append(str_split[i]);
 
-	if(str_split[0].compare("<list>") == 0){
+	if(str_split.front().compare("<list>") == 0){
 		type = P_LIST;
 		int startid = -1;
 		for(int i=0; i<mid.size(); i++)
@@ -37,16 +37,19 @@ int Protocal::parseCommand(const std::string& str, protocalType& type, std::vect
 			cerr << "Protocal::parseCommand(): Mismatched parentheses!" << endl;
 			return -1;
 		}
-	}else if(str_split[0].compare("<quit>") == 0){
+	}else if(str_split.front().compare("<quit>") == 0){
 		type = P_QUIT;
-	}else if(str_split[0].compare("<play>") == 0){
+	}else if(str_split.front().compare("<play>") == 0){
 		type = P_PLAY;
 		arguments.push_back(mid);
-	}else if(str_split[0].compare("<occupied>") == 0){
-		type = P_OCCUPIED;
+	}else if(str_split.front().compare("<playing>") == 0){
+		type = P_PLAYING;
 		arguments.push_back(mid);
-	}else if(str_split[0].compare("<stop>") == 0) {
+	}else if(str_split.front().compare("<stop>") == 0) {
 		type = P_STOP;
+		arguments.push_back(mid);
+	}else if(str_split.front().compare("<finish>") == 0){
+		type = P_FINISH;
 		arguments.push_back(mid);
 	}else{
 		cout << "Protocal::parseCommand(): protocal error, omit command: " << str_split[0] << endl;
@@ -64,8 +67,11 @@ std::string Protocal::composeCommand(const protocalType& type, const std::vector
 		case P_PLAY:
 			str.append("<play> ");
 			break;
-		case P_OCCUPIED:
-			str.append("<occupied> ");
+		case P_PLAYING:
+			str.append("<playing> ");
+			break;
+		case P_FINISH:
+			str.append("<finish>");
 			break;
 		case P_STOP:
 			str.append("<stop> ");
