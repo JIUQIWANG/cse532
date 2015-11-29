@@ -9,13 +9,14 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
     ACE_SOCK_Stream& stream = peer();
     string str;
     ssize_t res = stream.recv(data,sizeof(data));
+    cout << data << ' ' << res << ' ';
     if(res <= 0)
         return -1;
 	res = stream.send_n("K", 1, &timeout);
 	if(res <= 0)
 		return -1;
+    cout << "response sent" << endl;
     str.append(data);
-    cout << str << endl;
     return parseCommand(str);
 }
 
@@ -57,11 +58,14 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
         playlist->release(remote_addr);
         playlist->printList();
     }else if(type == Protocal::P_QUIT){
+        cout << "Director " << addr_buffer << " quit" << endl;
         playlist->removeAddr(remote_addr);
         if(playlist->is_empty() && SignalHandler::is_quit())
             SignalHandler::interrupt();
-        else
+        else {
+            cout << "Current list:" << endl;
             playlist->printList();
+        }
     }
 
     return 0;

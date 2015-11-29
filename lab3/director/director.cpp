@@ -41,8 +41,10 @@ int Director::work(){
 			throw runtime_error("Director::work(): connection lost");
 		}
 		int sit = cue(id);
-		if(sit == Situation::S_INTERRUPTED)
-			break;
+		if(sit == Situation::S_INTERRUPTED){
+			for(auto&v: players)
+				v->interrupt();
+		}
 		play_queue.pop_front();
 		//clean context
 		plays[id]->reset();
@@ -51,7 +53,8 @@ int Director::work(){
 		guard.unlock();
 		string feedback = Protocal::composeCommand(Protocal::P_FINISH, string(""), local_port);
 		if(Sender::sendMessage(feedback, stream) < 0){
-			throw runtime_error("Director::work(): connection lost");
+			cerr << "Connection lost" << endl;
+			SignalHandler::set_quit_flag();
 		}
 	}
 	return 0;
@@ -143,9 +146,6 @@ Director::~Director(){
 	workException.get();
 	if(workplay.joinable())
 		workplay.join();
-	//after cleaning, send feedback to producer
-	string str = Protocal::composeCommand(Protocal::P_QUIT, string(""), local_port);
-	Sender::sendMessage(str, stream);
 }
 
 int Director::parseCommand(const string& command){
@@ -162,11 +162,8 @@ int Director::parseCommand(const string& command){
 
 	//Command is quit
 	if(type == Protocal::P_QUIT) {
-		cout << "quit" << endl;
-		SignalHandler::interrupt();
-		for(auto& v: plays)
-			v->interrupt();
-		submit(finish_token);
+		stop();
+		SignalHandler::set_quit_flag();
 		return Situation::S_SUCCESS;
 	}
 
@@ -181,11 +178,15 @@ int Director::parseCommand(const string& command){
 		submit(play_id);
 	}
 	else if (type == Protocal::P_STOP){
-		stop(play_id);
+		stop();
 	}
 	return Situation::S_SUCCESS;
 }
 
+void Director::stop(){
+	for(const auto& v: plays)
+		v->interrupt();
+}
 int Director::cue(int id){
 	int counter = 0;
 	for (unsigned int i = 0; i < num_players; i++){

@@ -73,6 +73,7 @@ int Producer::handleKeyboard(const string& str){
     if(str_split.front().compare("quit") == 0){
         if(close() < 0)
             throw runtime_error("Failed to quit.");
+        return 0;
     }
 
     if(str_split.size() != 2){
@@ -109,12 +110,16 @@ int Producer::handleKeyboard(const string& str){
         cerr << "Invalid command." << endl;
         return -1;
     }
-    send_token = Sender::sendMessage(command, *stream);
 
+    send_token = Sender::sendMessage(command, *stream);
     return send_token;
 }
 
 int Producer::close(){
+    //only handle close event once
+    if(SignalHandler::is_quit())
+        return 0;
+
     SignalHandler::set_quit_flag();
     string command = Protocal::composeCommand(Protocal::P_QUIT, string(""), port);
     vector<ACE_INET_Addr> addr_to_remove;

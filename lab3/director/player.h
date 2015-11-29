@@ -34,6 +34,7 @@ public:
 	void enter(const std::shared_ptr<Part> part);
 	int read();
 	void exit();
+	void interrupt();
 
 	//Parse str into Line object line.
 	static void parseString(const std::string& str, const std::string& character, Line& line);

@@ -61,9 +61,7 @@ public:
 		play_queue.push_back(id);
 		cv.notify_all();
 	};
-	inline void stop(int id){
-		plays[id]->interrupt();
-	}
+	void stop();
 	inline void quit(){
 		std::lock_guard<std::mutex> guard(mt);
 		play_queue.push_back(finish_token);

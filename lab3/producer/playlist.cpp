@@ -18,6 +18,10 @@ void PlayList::removeAddr(const ACE_INET_Addr& target_addr) {
 }
 
 void PlayList::printList() const{
+	if(is_empty()){
+		cout << "No director connected" << endl;
+		return;
+	}
 	int id = 0;
 	cout << "---------------------------" << endl;
     for(const auto& v: data) {
@@ -44,9 +48,9 @@ int PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& strea
 	for(const auto& v: data){
 		for(const auto& vv: v.item){
 			if(counter++ == id){
+				stream = v.stream;
 				if(v.is_occupied)
 					return itemStatus::PLAYING;
-				stream = v.stream;
 				return itemStatus::VALID;
 			}
 		}

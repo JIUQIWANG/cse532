@@ -11,6 +11,7 @@ char Sender::response[BUFSIZ] = {};
 
 int Sender::sendMessage(const std::string& str, const ACE_SOCK_Stream& stream){
 	ssize_t res = stream.send_n(str.c_str(), (int)str.size(), &timeout);
+	cout << "sending " << str << ' '<< res << ' ' << flush;
 	if(res != (ssize_t)str.size()){
 		cerr << "Sender::sendMessage(): sending timeout!"<<endl;
 		return E_SEND;
@@ -20,5 +21,6 @@ int Sender::sendMessage(const std::string& str, const ACE_SOCK_Stream& stream){
 		cerr << "Sender::sendMessage(): response timeout!" << endl;
 		return E_RESPONSE;
 	}
+	cout << "response received" << endl;
 	return SUCCESS;
 }

@@ -67,14 +67,12 @@ int DirectorAgent::run(){
 	}
 
 	//ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);
-
 	while(true){
-		if(SignalHandler::is_interrupted()) {
-			cout << "closed" << endl << flush;
+		ACE_Reactor::instance()->handle_events();
+		if(SignalHandler::is_quit()) {
 			closeConnection();
 			break;
 		}
-		ACE_Reactor::instance()->handle_events();
 	}
 	return returnType::SUCCESS;
 }
@@ -99,4 +97,8 @@ int DirectorAgent::initializeAcceptor(){
 
 void DirectorAgent::closeConnection(){
 	director->exit();
+	//after cleaning, send feedback to producer
+	string str = Protocal::composeCommand(Protocal::P_QUIT, string(""), local_port);
+	Sender::sendMessage(str, stream);
+
 }

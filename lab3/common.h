@@ -21,10 +21,10 @@ public:
     };
 
     static inline void printInstruction(){
-        std::cout << "Operations" << std::endl;
-        std::cout << "play <id-of-script>" << std::endl;
-        std::cout << "stop <id-of-script>" << std::endl;
-        std::cout << "quit" << std::endl;
+        std::cout << "Operations\t play <id-of-script>\t stop <id-of-script>\t quit" << std::endl;
+//        std::cout << "play <id-of-script>" << std::endl;
+//        std::cout << "stop <id-of-script>" << std::endl;
+//        std::cout << "quit" << std::endl;
         std::cout << "---------------------------" << std::endl;
     }
 

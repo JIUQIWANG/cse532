@@ -85,8 +85,15 @@ void Player::enter(const shared_ptr<Part> part){
 
 void Player::exit(){
 	//Add termination token into working queue
-	Part terminal_part(TERMINATION_TOKEN,pair<string,string>());
-	enter(make_shared<Part>(terminal_part));
+	shared_ptr<Part> terminal_part(new Part(TERMINATION_TOKEN,pair<string,string>()));
+	enter(terminal_part);
+}
+
+void Player::interrupt() {
+	shared_ptr<Part> interrupt_part(new Part(TERMINATION_TOKEN,pair<string,string>()));
+	lock_guard<mutex> guard(mt);
+	working_queue.push_front(interrupt_part);
+	cv.notify_all();
 }
 
 void Player::parseString(const string& str, const string& character, Line& line){

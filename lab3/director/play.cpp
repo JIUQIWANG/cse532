@@ -26,8 +26,9 @@ void Play::recite(vector<Line>::iterator& iter, int fragment){
 	//Also we add stop_flag.load() to ensure the recite can end sooner when receiving stop command from producer
 	const auto max_duration = 500;
 	if(cv.wait_for(guard, chrono::milliseconds(max_duration), [=]{return (scene_fragment_counter == fragment && line_counter == iter->id) || interrupt_flag.load(); })) {
-		if(interrupt_flag.load())
+		if(interrupt_flag.load()) {
 			return;
+		}
 		if (iter->character != current_character){
 			cout << ' ' << endl;
 			cout << iter->character << endl;
