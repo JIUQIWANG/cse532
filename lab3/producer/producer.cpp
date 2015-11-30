@@ -71,6 +71,7 @@ int Producer::handleKeyboard(const string& str){
     int send_token = 0;
     //to quit the producer, the producer first send <quit> command to all connected
     if(str_split.front().compare("quit") == 0){
+        SignalHandler::set_quit_flag();
         if(close() < 0)
             throw runtime_error("Failed to quit.");
         return 0;
@@ -130,9 +131,6 @@ int Producer::close(){
         SignalHandler::interrupt();
         return 0;
     }
-    if(SignalHandler::is_quit())
-        return 0;
-    SignalHandler::set_quit_flag();
     string command = Protocal::composeCommand(Protocal::P_QUIT, string(""), port);
     vector<ACE_INET_Addr> addr_to_remove;
     list<ItemSet> data = playlist->getList();
@@ -143,11 +141,11 @@ int Producer::close(){
     for(const auto&v: addr_to_remove){
         playlist->removeAddr(v);
     }
+
     if(playlist->is_empty()){
         SignalHandler::interrupt();
         return 0;
     }
-
     cout << "Waiting following client to quit: " << endl;
     playlist->printAddress();
 

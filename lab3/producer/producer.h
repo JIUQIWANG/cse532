@@ -26,7 +26,6 @@ public:
 
     int handleKeyboard(const std::string& str);
 
-
     //when shutting down, notify all connected directors
     int close();
 private:

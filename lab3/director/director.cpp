@@ -54,7 +54,8 @@ int Director::work(){
 			}
 			play_queue.pop_front();
 			//clean context
-			plays[id]->reset();
+			for(auto& v: plays)
+				v->reset();
 			players.clear();
 			exceptionHandlers.clear();
 			guard.unlock();
