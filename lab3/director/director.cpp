@@ -22,9 +22,7 @@ Director::Director(unsigned int minimum_num_players_, const std::vector<std::str
 		num_players = max(minimum_num_players, max_players_consecutive);
 
 	//Make Director Active Object with a thread to continue work
-	packaged_task<int()> task(bind(&Director::work, this));
-	workException = task.get_future();
-	workplay = thread(move(task));
+	workplay = thread(&Director::work, this);
 }
 
 int Director::work(){
@@ -164,11 +162,6 @@ void Director::storeScript(const string script_name_, int position){
 Director::~Director(){
 	//call exit() method to ensure the working thread won't block the deconstruction
 	exit();
-	try {
-		workException.get();
-	}catch(const runtime_error& e){
-		cout << e.what() << endl;
-	}
 	if(workplay.joinable())
 		workplay.join();
 }

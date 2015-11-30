@@ -7,6 +7,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <thread>
 #include <exception>
 #include <stdexcept>
 #include <future>
@@ -94,7 +95,6 @@ private:
 	std::vector<std::shared_ptr<Player> > players;
 	std::vector<std::future<int> > exceptionHandlers;
 	std::deque<int> play_queue;
-	mutable std::future<int> workException;
 	std::thread workplay;
 	mutable std::mutex mt;
 	mutable std::condition_variable cv;

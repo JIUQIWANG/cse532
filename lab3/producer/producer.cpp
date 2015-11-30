@@ -71,7 +71,7 @@ int Producer::handleKeyboard(const string& str){
     int send_token = 0;
     //to quit the producer, the producer first send <quit> command to all connected
     if(str_split.front().compare("quit") == 0){
-        SignalHandler::set_quit_flag();
+        //SignalHandler::set_quit_flag();
         if(close() < 0)
             throw runtime_error("Failed to quit.");
         return 0;
@@ -146,6 +146,9 @@ int Producer::close(){
         SignalHandler::interrupt();
         return 0;
     }
+
+    //set playlist to "clean" status. Once all director are removed, Producer will exit
+    playlist->enter_cleaning();
     cout << "Waiting following client to quit: " << endl;
     playlist->printAddress();
 

@@ -33,6 +33,7 @@ struct ItemSet{
 
 class PlayList{
 public:
+    PlayList(): clean_flag(false){}
 	enum itemStatus{VALID, NOT_FOUND, PLAYING};
     void removeAddr(const ACE_INET_Addr& target_addr);
     void printList() const;
@@ -45,7 +46,8 @@ public:
         return data;
     }
     inline bool is_empty() const{return data.empty();}
-
+    inline bool is_cleaning() const {return clean_flag;}
+    inline void enter_cleaning() {clean_flag = true;}
     void checkStatus();
     void maintainConnection(const ACE_INET_Addr& addr);
     std::string convertId(const std::string& id_str);
@@ -57,6 +59,9 @@ public:
     void release(const ACE_INET_Addr& remote_addr);
 private:
     std::list<ItemSet> data;
+
+    //clean_flag is set to true if the user request to quit the Producer.
+    bool clean_flag;
 	static const char windows_CR;
 };
 

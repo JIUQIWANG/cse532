@@ -60,7 +60,7 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
     }else if(type == Protocal::P_QUIT){
         cout << "Director " << addr_buffer << " quit" << endl;
         playlist->removeAddr(remote_addr);
-        if(playlist->is_empty() && SignalHandler::is_quit())
+        if(playlist->is_empty() && playlist->is_cleaning())
             SignalHandler::interrupt();
         else {
             cout << "Current list:" << endl;
