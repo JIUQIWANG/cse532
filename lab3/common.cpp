@@ -16,13 +16,13 @@ int Protocal::parseCommand(const std::string& str, protocalType& type, std::vect
 
 	std::string mid;
 	//compose the substring containing all play titles
-	for(int i=1; i<str_split.size()-1; ++i)
+	for(size_t i=1; i<str_split.size()-1; ++i)
 		mid.append(str_split[i]);
 
 	if(str_split.front().compare("<list>") == 0){
 		type = P_LIST;
 		int startid = -1;
-		for(int i=0; i<mid.size(); i++)
+		for(int i=0; i<(int)mid.size(); i++)
 			if(mid[i] == '('){
 				startid = i + 1;
 			}else if(mid[i] == ')') {

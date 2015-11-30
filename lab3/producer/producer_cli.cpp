@@ -31,8 +31,9 @@ int main(int argc, char** argv){
 			if(SignalHandler::is_interrupted())
 				break;
 			ACE_Reactor::instance()->handle_events();
-			if(SignalHandler::is_interrupted())
+			if(SignalHandler::is_interrupted()){
 				break;
+			}
 		}
 	}catch(const runtime_error& e){
 		cerr << e.what() << endl;

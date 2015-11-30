@@ -2,7 +2,6 @@
 
 using namespace std;
 
-const char PlayList::windows_CR = 13;
 
 //remove the play item with certain address
 void PlayList::removeAddr(const ACE_INET_Addr& target_addr) {
@@ -47,7 +46,7 @@ void PlayList::printAddress() const{
 	for(const auto& v:data){
 		char addrbuffer[BUFSIZ];
 		v.getAddr().addr_to_string(addrbuffer, BUFSIZ);
-		cout << addrbuffer << endl;
+		cout << addrbuffer << endl << flush;
 	}
 }
 int PlayList::find(const std::string &id_str, shared_ptr<ACE_SOCK_Stream>& stream)const {
@@ -86,8 +85,6 @@ string PlayList::convertId(const std::string &id_str) {
 
 bool PlayList::is_number(const string& str){
 	for(const auto& v: str){
-		if(v == windows_CR)
-			continue;
 		if(v < '0' || v > '9')
 			return false;
 	}
@@ -112,37 +109,5 @@ void PlayList::release(const ACE_INET_Addr &remote_addr) {
 	for(auto& v: data){
 		if(v.getAddr() == remote_addr)
 			v.is_occupied = false;
-	}
-}
-
-void PlayList::checkStatus() {
-//	unique_set addr_to_remove;
-//	bool is_updated = false;
-//	for(auto& v: data){
-//		if(v.is_connected) {
-//			v.is_connected = false;
-//			continue;
-//		}
-//		is_updated = true;
-//		char buffer[BUFSIZ];
-//		v.getAddr().addr_to_string(buffer, BUFSIZ);
-//		addr_to_remove.insert(string(buffer));
-//	}
-//
-//	for(auto&v: addr_to_remove){
-//		cout << v << " disconnected." << endl;
-//		ACE_INET_Addr addr;
-//		addr.string_to_addr(v.c_str());
-//		removeAddr(addr);
-//	}
-//
-//	if(is_updated)
-//		printList();
-}
-
-void PlayList::maintainConnection(const ACE_INET_Addr &addr) {
-	for(auto& v: data){
-		if(v.getAddr() == addr)
-			v.is_connected = true;
 	}
 }

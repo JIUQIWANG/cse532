@@ -13,7 +13,7 @@ int QuitTimer::handle_timeout(const ACE_Time_Value &current_time, const void *ac
     return -1;
 }
 
-Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(new PlayList()), acceptor(nullptr){
+Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port_), reactor(reactor_), playlist(new PlayList()), acceptor(nullptr), liveness_checker(nullptr){
     if(ACE_Event_Handler::register_stdin_handler(this, reactor, ACE_Thread_Manager::instance()) < 0){
         throw runtime_error("Producer::Producer():Failed to register keyboard handler!");
     }
@@ -30,20 +30,21 @@ Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port
     }
 
     //register the liveness checker
-    LivenessChecker *checker = nullptr;
-    ACE_NEW_NORETURN(checker, LivenessChecker(playlist));
-    if(checker == nullptr){
-        throw runtime_error("Producer::Producer(): Failed to allocate LivenessChecker");
-    }
-    reactor->schedule_timer(checker, 0, check_interval, check_interval);
+    //ACE_NEW_NORETURN(liveness_checker, LivenessChecker(playlist));
+    //if(liveness_checker == nullptr){
+    //    throw runtime_error("Producer::Producer(): Failed to allocate LivenessChecker");
+    //}
+    //if(reactor->schedule_timer(liveness_checker, 0, check_interval, check_interval) < 0){
+	//	throw runtime_error("Producer::Producer():Failed to regietser liveness checker");
+	//}
+	CLEAN_SCREEN;
     cout << "Waiting for director..." << endl;
 }
 
 int Producer::handle_input(ACE_HANDLE h){
     //once quit_flag is set, no longer handle keyboard event
-    if(quit_flag)
-        return -1;
-
+	if(SignalHandler::is_quit() || playlist->is_cleaning())
+        return 0;
     char buf[BUFSIZ];
     string str;
     if(h == ACE_STDIN){
@@ -57,6 +58,10 @@ int Producer::handle_input(ACE_HANDLE h){
                 break;
             str += buf[i];
         }
+#ifdef _WIN32
+		//on windows system, the last character of str is \n, we have to remove it before parsing command
+		str.pop_back();
+#endif
         handleKeyboard(str);
     }
     return 0;
@@ -69,12 +74,12 @@ int Producer::handleKeyboard(const string& str){
     shared_ptr<ACE_SOCK_Stream> stream;
 
     int send_token = 0;
+
     //to quit the producer, the producer first send <quit> command to all connected
     if(str_split.front().compare("quit") == 0){
-        //SignalHandler::set_quit_flag();
         if(close() < 0)
             throw runtime_error("Failed to quit.");
-        return 0;
+        return -1;
     }
 
     if(str_split.size() != 2){
@@ -119,6 +124,7 @@ int Producer::handleKeyboard(const string& str){
     if(send_token < 0){
         cerr << "Connection to " << addr_buffer << "lost, remote all scripts from it" << endl;
         playlist->removeAddr(remote_addr);
+		CLEAN_SCREEN;
         cout << "Current list:" << endl;
         playlist->printList();
     }
@@ -126,11 +132,12 @@ int Producer::handleKeyboard(const string& str){
 }
 
 int Producer::close(){
-    //only handle close event once
     if(playlist->is_empty()){
         SignalHandler::interrupt();
         return 0;
     }
+	cout << "c1" << endl << flush;
+
     string command = Protocal::composeCommand(Protocal::P_QUIT, string(""), port);
     vector<ACE_INET_Addr> addr_to_remove;
     list<ItemSet> data = playlist->getList();
@@ -147,10 +154,14 @@ int Producer::close(){
         return 0;
     }
 
+	cout << "c2" << endl << flush;
+
     //set playlist to "clean" status. Once all director are removed, Producer will exit
     playlist->enter_cleaning();
     cout << "Waiting following client to quit: " << endl;
     playlist->printAddress();
+
+	cout << "c3" << endl << flush;
 
     //wait for check_interval, register a timer event
     QuitTimer* h = nullptr;

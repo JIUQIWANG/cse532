@@ -8,10 +8,6 @@
 
 class SignalHandler: public ACE_Event_Handler{
 public:
-    SignalHandler(){
-        interrupt_flag.store(false);
-        quit_flag.store(false);
-    };
     static inline bool is_interrupted() {return interrupt_flag.load();}
     static inline void interrupt() {interrupt_flag.store(true);}
     static inline bool is_quit() {return quit_flag.load();}

@@ -48,8 +48,6 @@ public:
     inline bool is_empty() const{return data.empty();}
     inline bool is_cleaning() const {return clean_flag;}
     inline void enter_cleaning() {clean_flag = true;}
-    void checkStatus();
-    void maintainConnection(const ACE_INET_Addr& addr);
     std::string convertId(const std::string& id_str);
 
 	static bool is_number(const std::string& str);
@@ -62,7 +60,6 @@ private:
 
     //clean_flag is set to true if the user request to quit the Producer.
     bool clean_flag;
-	static const char windows_CR;
 };
 
 

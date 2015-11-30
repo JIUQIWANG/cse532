@@ -66,7 +66,7 @@ int Director::work(){
 				SignalHandler::set_quit_flag();
 				break;
 			}
-		}catch(const exception& e){
+		}catch(const exception&){
 			cerr << "Director::work(): exception caught! Quit" << endl;
 			play_queue.clear();
 			exceptionHandlers.clear();

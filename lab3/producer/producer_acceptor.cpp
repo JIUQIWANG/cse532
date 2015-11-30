@@ -51,10 +51,12 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
         Protocal::printInstruction();
 	}else if(type == Protocal::P_PLAYING) {
         playlist->occupy(remote_addr);
+		CLEAN_SCREEN;
         cout << "Current list:" << endl;
         playlist->printList();
     }else if(type == Protocal::P_FINISH){
         playlist->release(remote_addr);
+		CLEAN_SCREEN;
         cout << "Current list:" << endl;
         playlist->printList();
     }else if(type == Protocal::P_QUIT){
@@ -63,6 +65,7 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
         if(playlist->is_empty() && playlist->is_cleaning())
             SignalHandler::interrupt();
         else {
+			CLEAN_SCREEN;
             cout << "Current list:" << endl;
             playlist->printList();
         }

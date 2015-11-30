@@ -35,9 +35,7 @@ private:
     //unique_addr keeps tracking of individual connections
     ProducerAcceptor* acceptor;
     ACE_Reactor* reactor;
-
-    //quit_flag is set by "quit" command. When set, the program will quit once the play list empty
-    bool quit_flag;
+	LivenessChecker* liveness_checker;
     static const ACE_Time_Value check_interval;
 };
 #endif

@@ -5,6 +5,13 @@
 #include <iostream>
 #include <vector>
 #include "string_util.h"
+
+#ifdef _WIN32
+#define CLEAN_SCREEN system("cls")
+#else
+#define CLEAN_SCREEN system("clear")
+#endif
+
 enum returnType{SUCCESS,E_ARGUMENT,E_REACTOR,E_CONNECTION,E_MEMORY, E_OTHER};
 
 const unsigned short default_port = 2000;
