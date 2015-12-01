@@ -5,5 +5,5 @@ add_executable(ac_server ${SOURCE_FILES} ${HEADER_FILES})
 
 target_link_libraries(ac_server -lACE)
 if(${CMAKE_SYSTEM} MATCHES "Linux")
-  target_link_libraries(producer pthread)
+  target_link_libraries(ac_server pthread)
 endif(${CMAKE_SYSTEM} MATCHES "Linux")
