@@ -10,10 +10,10 @@
 class SocketHandler : public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH> {
 public:
     SocketHandler(){
-        std::cout << "SocketHandler " << this << " constructed" << endl;
+        std::cout << "SocketHandler " << this << " constructed" << std::endl;
     }
     ~SocketHandler(){
-        std::cout << "SocketHandler " << this << " destructed" << endl;
+        std::cout << "SocketHandler " << this << " destructed" << std::endl;
     }
     virtual int handle_input(ACE_HANDLE = ACE_INVALID_HANDLE);
     virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){

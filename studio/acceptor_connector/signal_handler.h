@@ -8,10 +8,10 @@
 class SignalHandler: public ACE_Event_Handler{
 public:
 	SignalHandler(){
-		std::cout << "SignalHandler " << this << " constructed" << endl;
+	    std::cout << "SignalHandler " << this << " constructed" << std::endl;
 	}
 	~SignalHandler(){
-		std::cout << "SignalHandler " << this << " destructed" << endl;
+	    std::cout << "SignalHandler " << this << " destructed" << std::endl;
 	}
 	static inline bool is_interrupted() {return interrupted;}
 

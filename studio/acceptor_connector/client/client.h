@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <iostream>
 #include <csignal>
 
 class PeriodSender: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
