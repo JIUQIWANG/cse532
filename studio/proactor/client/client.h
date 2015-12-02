@@ -41,7 +41,7 @@ public:
             message_str.append(argv[i]);
             message_str.append(" ");
         }
-        cout << "PeriodSender " << this << " constructed" << endl << std::flush;
+	std:: cout << "PeriodSender " << this << " constructed" << std::endl << std::flush;
 
         std::cout << "ClientConnector " << this << " constructed" << std::endl << std::flush;
     }

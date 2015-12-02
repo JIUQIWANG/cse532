@@ -5,6 +5,6 @@ add_executable(proactor_client ${SOURCE_FILES} ${HEADER_FILES})
 
 target_link_libraries(proactor_client -lACE)
 if(${CMAKE_SYSTEM} MATCHES "Linux")
-  target_link_libraries(practor_client pthread)
+  target_link_libraries(proactor_client pthread)
 endif(${CMAKE_SYSTEM} MATCHES "Linux")
 
