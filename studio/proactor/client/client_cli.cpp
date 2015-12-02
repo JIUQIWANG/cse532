@@ -28,19 +28,11 @@ int main(int argc, char** argv){
         cerr << "Can not connect to server" << endl;
         return -1;
     }
-
-//    SignalHandler *signalHandler;
-//    ACE_NEW_RETURN(signalHandler, SignalHandler(), -1);
-//    unique_ptr<SignalHandler> guard_signal(signalHandler);
-
+	ACE_Time_Value timeout(0,100);
     while(true){
-//        if(SignalHandler::is_interrupted()){
-//            break;
-//        }
-        ACE_Proactor::instance()->handle_events();
+        ACE_Proactor::instance()->handle_events(timeout);
     }
 
-    //guard_signal.release();
-
+	guard_connector.release();
     return returnType::success;
 }

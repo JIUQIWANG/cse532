@@ -20,26 +20,15 @@ void processSignal(ACE_Proactor* proactor, const unsigned short port){
         cerr << "Can not register signal handler" << endl;
         return;
     }
+	ACE_Time_Value timeout(0,100);
     string close_str("close");
     while(true){
-        cout << SignalHandler::is_interrupted() << endl << std::flush;
-        if(SignalHandler::is_interrupted()){
-            //send a message to local port, force proactor to handle_event
-            cout << "c1" << endl << std::flush;
-            ACE_INET_Addr local_addr(port, ACE_LOCALHOST);
-            ACE_SOCK_Connector connector;
-            ACE_SOCK_Stream stream;
-            if(connector.connect(stream, local_addr) < 0)
-                cout << "processSignal(): can not connect" << endl << std::flush;
-            cout << "sending messsage" << endl << std::flush;
-            stream.send_n(close_str.c_str(), close_str.size());
-            cout << "Message sent" << endl << std::flush << endl;
+        if(QuitFlags::is_quit()){
             break;
         }
-        ACE_Reactor::instance()->handle_events();
+        ACE_Reactor::instance()->handle_events(timeout);
     }
 
-    cout << "c1" << endl << std::flush;
     guard_signal.release();
 }
 
@@ -64,13 +53,12 @@ int main(int argc, char** argv){
     thread t(processSignal, ACE_Proactor::instance(), port);
     thread_guard t_guard(t);
 
+	ACE_Time_Value timeout(0,100);
     while(true) {
-        if(SignalHandler::is_interrupted())
+        if(QuitFlags::is_quit())
             break;
-        ACE_Proactor::instance()->handle_events();
+        ACE_Proactor::instance()->handle_events(timeout);
     }
-
-    cout << "c1" << endl << std::flush;
     guard_acceptor.release();
 
     return returnType::SUCCESS;

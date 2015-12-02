@@ -3,34 +3,31 @@
 
 #include <ace/ACE.h>
 #include <ace/Event_Handler.h>
-#include <atomic>
 #include <signal.h>
+#include <atomic>
+#include <iostream>
+
+class QuitFlags{
+public:
+	static void set_quit_flag(){
+		quit_flag.store(true);
+	}
+	static bool is_interrupted() {return interrupt_flag.load();}
+	static bool is_quit(){return quit_flag.load();};
+	static void interrupt() {interrupt_flag.store(true);}
+
+	static std::atomic<bool> quit_flag;
+	static std::atomic<bool> interrupt_flag;
+};
 
 class SignalHandler: public ACE_Event_Handler{
 public:
-	SignalHandler(){
-	    std::cout << "SignalHandler " << this << " constructed" << std::endl;
-	}
-	~SignalHandler(){
-	    std::cout << "SignalHandler " << this << " destructed" << std::endl;
-	}
-	static inline bool is_interrupted() {return interrupted.load();}
-
-	virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
-		if(signum == SIGINT){
-			interrupted.store(true);
-			printf("interrupted!\n");
-		}
-		return -1;
-	}
-	virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
-		delete this;
-		return 0;
-	}
-private:
-	static std::atomic<bool> interrupted;
+    virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
+        if(signum == SIGINT){
+			QuitFlags::set_quit_flag();
+			return -1;
+        }
+       return 0;
+    }
 };
-
-std::atomic<bool> SignalHandler::interrupted(false);
-
 #endif

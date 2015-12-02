@@ -1,5 +1,5 @@
 project(proactor_client)
-set(SOURCE_FILES client_cli.cpp client.cpp)
+set(SOURCE_FILES client_cli.cpp client.cpp ../signal_handler.cpp)
 set(HEADER_FILES client.h ../signal_handler.h)
 add_executable(proactor_client ${SOURCE_FILES} ${HEADER_FILES})
 

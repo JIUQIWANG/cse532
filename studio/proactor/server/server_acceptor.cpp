@@ -10,10 +10,10 @@ void SocketHandler::open(ACE_HANDLE new_handle, ACE_Message_Block&){
 }
 
 SocketHandler::~SocketHandler(){
-	std::cout << "SocketHandler " << this << " destructed" << std::endl;
 	reader.cancel();
 	ACE_OS::closesocket(handle());
 	acceptor->remove(this);
+	std::cout << "SocketHandler " << this << " destructed" << std::endl;
 }
 
 void SocketHandler::handle_read_stream(const ACE_Asynch_Read_Stream::Result& result){

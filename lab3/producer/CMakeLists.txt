@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(producer)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(SOURCE_FILES producer_cli.cpp producer.cpp producer_acceptor.cpp  playlist.cpp liveness_checker.cpp ../signal_handler.cpp ../sender.cpp ../string_util.cpp ../common.cpp)
 set(HEADER_FILES producer.h producer_acceptor.h playlist.h liveness_checker.h ../sender.h ../signal_handler.h ../common.h ../string_util.h)
 

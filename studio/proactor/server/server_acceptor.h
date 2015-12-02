@@ -26,13 +26,13 @@ public:
 			t.join();
 	}
 
-	thread_guard(thread_guard const&) = delete;
-	thread_guard& operator= (thread_guard const&) = delete;
 	~thread_guard(){
 		if(t.joinable())
 			t.join();
 	}
 private:
+	thread_guard(thread_guard const&){}
+	thread_guard& operator= (thread_guard const&){}
 	std::thread t;
 };
 
@@ -60,6 +60,7 @@ public:
     }
     ~Server_Acceptor(){
         std::cout << "Server_Acceptor " << this << " destructed" << std::endl << std::flush;
+		close();
     }
 	virtual SocketHandler* make_handler();
 	inline void remove(SocketHandler* ih){
