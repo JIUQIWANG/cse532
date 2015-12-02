@@ -31,7 +31,7 @@ public:
         return 0;
     }
 private:
-    std::vector<std::string> messages;
+    std::string message;
     ACE_Time_Value interval;
     int counter;
 };

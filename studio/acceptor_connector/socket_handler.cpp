@@ -12,10 +12,10 @@
 using namespace std;
 
 int SocketHandler::handle_input(ACE_HANDLE h){
-    char buffer[BUFSIZ];
+	char buffer[BUFSIZ] = {};
     if(peer().recv(buffer, BUFSIZ) <= 0){
         return -1;
     }
-    cout << buffer << endl;
+    cout << buffer << endl << std::flush;
     return 0;
 }

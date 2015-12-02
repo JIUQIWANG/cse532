@@ -36,7 +36,7 @@ private:
 class ClientConnector: public ACE_Asynch_Connector<PeriodSender>{
 public:
     ClientConnector(int argc, char** argv){
-        open(0, ACE_Proactor::instance());
+        open();
         for(int i=1; i<argc; i++){
             message_str.append(argv[i]);
             message_str.append(" ");

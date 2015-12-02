@@ -5,9 +5,9 @@ set(HEADER_FILES server_acceptor.h ../socket_handler.h ../signal_handler.h)
 add_executable(proactor_server ${SOURCE_FILES} ${HEADER_FILES})
 
 if(WIN32)
-  target_link_libraries(proactor_server -lACEd)
+  target_link_libraries(proactor_server ACEd)
 else(WIN32)
-  target_link_libraries(proactor_server -lACE)
+  target_link_libraries(proactor_server ACE)
 endif(WIN32)
 
 if(${CMAKE_SYSTEM} MATCHES "Linux")

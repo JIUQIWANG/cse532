@@ -18,27 +18,27 @@ int main(int argc, char** argv){
     ACE_NEW_RETURN(acceptor, Server_Acceptor(), returnType::E_MEMORY);
     unique_ptr<Server_Acceptor> guard_acceptor(acceptor);
 
-    if(acceptor->open(local_addr) < 0){
+    if(acceptor->open(local_addr, 0, false, 5, 1, ACE_Proactor::instance()) < 0){
         cerr << "Can not open acceptor"<<endl;
         return returnType::E_CONNECTION;
     }
 
-    SignalHandler *signalHandler;
-    ACE_NEW_RETURN(signalHandler, SignalHandler(), returnType::E_MEMORY);
-    unique_ptr<SignalHandler> guard_signal(signalHandler);
-    if(ACE_Reactor::instance()->register_handler(SIGINT, signalHandler) < 0){
-        cerr << "Can not register signal handler" << endl;
-        return returnType::E_REACTOR;
-    }
+    //SignalHandler *signalHandler;
+    //ACE_NEW_RETURN(signalHandler, SignalHandler(), returnType::E_MEMORY);
+    //unique_ptr<SignalHandler> guard_signal(signalHandler);
+    //if(ACE_Reactor::instance()->register_handler(SIGINT, signalHandler) < 0){
+    //    cerr << "Can not register signal handler" << endl;
+    //    return returnType::E_REACTOR;
+    //}
 
     while(true){
-        if(SignalHandler::is_interrupted()){
-            break;
-        }
-        ACE_Reactor::instance()->handle_events();
+        //if(SignalHandler::is_interrupted()){
+        //    break;
+        //}
+        ACE_Proactor::instance()->handle_events();
     }
 
     guard_acceptor.release();
-    guard_signal.release();
+    //guard_signal.release();
     return returnType::SUCCESS;
 }
