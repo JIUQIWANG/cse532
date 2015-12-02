@@ -9,6 +9,7 @@ using namespace std;
 PeriodSender::PeriodSender(const std::string message_str_): message_str(message_str_),
         interval(3, 0), counter(0){
     //message.init(buffer, strlen(buffer));
+    message_str.append("\n");
     message.init(BUFSIZ);
     message.copy(message_str.c_str(), message_str.size());
 

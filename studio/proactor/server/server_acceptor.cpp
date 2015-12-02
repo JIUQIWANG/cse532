@@ -6,7 +6,7 @@ void SocketHandler::open(ACE_HANDLE new_handle, ACE_Message_Block&){
 	reader.open(*this, new_handle, 0, proactor());
 	mblk.init(BUFSIZ);
 	mblk.wr_ptr(mblk.base());
-	reader.read(mblk, mblk.length());
+	reader.read(mblk, 1);
 }
 
 SocketHandler::~SocketHandler(){
@@ -17,12 +17,11 @@ SocketHandler::~SocketHandler(){
 }
 
 void SocketHandler::handle_read_stream(const ACE_Asynch_Read_Stream::Result& result){
-	cout << "SocketHandler::handle_read_stream() called " << endl << std::flush;
 	if(!result.success() || result.bytes_transferred() == 0)
 		delete this;
 	ACE_OS::write_n(ACE_STDOUT, mblk.rd_ptr(), result.bytes_transferred());
 	mblk.wr_ptr(mblk.base());
-	reader.read(mblk, mblk.length());
+	reader.read(mblk, 1);
 }
 
 SocketHandler* Server_Acceptor::make_handler(){

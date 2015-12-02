@@ -3,6 +3,7 @@
 
 #include <ace/ACE.h>
 #include <ace/Event_Handler.h>
+#include <atomic>
 #include <signal.h>
 
 class SignalHandler: public ACE_Event_Handler{
@@ -13,11 +14,11 @@ public:
 	~SignalHandler(){
 	    std::cout << "SignalHandler " << this << " destructed" << std::endl;
 	}
-	static inline bool is_interrupted() {return interrupted;}
+	static inline bool is_interrupted() {return interrupted.load();}
 
 	virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
 		if(signum == SIGINT){
-			interrupted = true;
+			interrupted.store(true);
 			printf("interrupted!\n");
 		}
 		return -1;
@@ -27,9 +28,9 @@ public:
 		return 0;
 	}
 private:
-	static bool interrupted;
+	static std::atomic<bool> interrupted;
 };
 
-bool SignalHandler::interrupted = false;
+std::atomic<bool> SignalHandler::interrupted(false);
 
 #endif
