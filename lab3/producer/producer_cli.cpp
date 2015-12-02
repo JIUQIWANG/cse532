@@ -20,20 +20,18 @@ int main(int argc, char** argv){
 	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
 	ACE_Reactor::instance()->register_handler(SIGINT, sighandler);
 
+	ACE_Time_Value timeout(0,100);
 	try {
 		Producer *producer;
 		ACE_NEW_RETURN(producer, Producer(port), returnType::E_MEMORY);
 		while (true) {
-			if (SignalHandler::is_quit()){
+			ACE_Reactor::instance()->handle_events(timeout);
+			if (QuitFlags::quit_flag.load()){
 				if(producer->close() < 0)
 					throw runtime_error("Failed to quit");
 			}
-			if(SignalHandler::is_interrupted())
+			if(QuitFlags::is_interrupted())
 				break;
-			ACE_Reactor::instance()->handle_events();
-			if(SignalHandler::is_interrupted()){
-				break;
-			}
 		}
 	}catch(const runtime_error& e){
 		cerr << e.what() << endl;

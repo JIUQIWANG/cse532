@@ -25,5 +25,6 @@ private:
 	ACE_SOCK_Stream stream;
 	ACE_SOCK_Connector connector;
 	ACE_INET_Addr remote_addr;
+	ACE_Time_Value timeout;
 };
 #endif

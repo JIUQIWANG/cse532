@@ -63,7 +63,7 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
         cout << "Director " << addr_buffer << " quit" << endl;
         playlist->removeAddr(remote_addr);
         if(playlist->is_empty() && playlist->is_cleaning())
-            SignalHandler::interrupt();
+            QuitFlags::interrupt();
         else {
 			CLEAN_SCREEN;
             cout << "Current list:" << endl;

@@ -37,12 +37,12 @@ int Director::work(){
 			//the sendingMessage method will be called in both main thread and working thread, to avoid race condition, these two
 			//calls are separated by the atomic<bool> variable inside SignalHandler. More specifically, working can only call
 			//sendMessage before quit_flag is set, and the main thread can only call this method after quit_flag is set.
-			if (SignalHandler::is_quit())
+			if (QuitFlags::is_quit())
 				break;
 			string command = Protocal::composeCommand(Protocal::P_PLAYING, string(""), local_port);
 			if (Sender::sendMessage(command, stream)) {
 				cerr << "Connection lost" << endl;
-				SignalHandler::set_quit_flag();
+				QuitFlags::set_quit_flag();
 				break;
 			}
 			int sit = cue(id);
@@ -58,19 +58,19 @@ int Director::work(){
 			exceptionHandlers.clear();
 			guard.unlock();
 
-			if (SignalHandler::is_quit())
+			if (QuitFlags::is_quit())
 				break;
 			string feedback = Protocal::composeCommand(Protocal::P_FINISH, string(""), local_port);
 			if (Sender::sendMessage(feedback, stream) < 0) {
 				cerr << "Connection lost" << endl;
-				SignalHandler::set_quit_flag();
+				QuitFlags::set_quit_flag();
 				break;
 			}
 		}catch(const exception&){
 			cerr << "Director::work(): exception caught! Quit" << endl;
 			play_queue.clear();
 			exceptionHandlers.clear();
-			SignalHandler::set_quit_flag();
+			QuitFlags::set_quit_flag();
 			break;
 		}
 	}
@@ -184,7 +184,7 @@ int Director::parseCommand(const string& command){
 	//Command is quit
 	if(type == Protocal::P_QUIT) {
 		stop();
-		SignalHandler::set_quit_flag();
+		QuitFlags::set_quit_flag();
 		return Situation::S_SUCCESS;
 	}
 

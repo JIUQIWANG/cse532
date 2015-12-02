@@ -2,7 +2,7 @@
 
 using namespace std;
 
-DirectorAgent::DirectorAgent(int argc, char **argv){
+DirectorAgent::DirectorAgent(int argc, char **argv): timeout(0,100){
 	int minimum_value = stoi(argv[3]);
 	vector<string> scripts;
 	for (int pos = 4; pos < argc; pos++) {
@@ -64,8 +64,8 @@ int DirectorAgent::run(){
 
 	//ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);
 	while(true){
-		ACE_Reactor::instance()->handle_events();
-		if(SignalHandler::is_quit()) {
+		ACE_Reactor::instance()->handle_events(timeout);
+		if(QuitFlags::is_quit()) {
 			closeConnection();
 			break;
 		}

@@ -9,7 +9,7 @@ int QuitTimer::handle_timeout(const ACE_Time_Value &current_time, const void *ac
     cout << "No response from the following scripts:" << endl;
     playlist->printList();
     cout << "Force quit" << endl;
-    SignalHandler::interrupt();
+    QuitFlags::interrupt();
     return -1;
 }
 
@@ -43,7 +43,7 @@ Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port
 
 int Producer::handle_input(ACE_HANDLE h){
     //once quit_flag is set, no longer handle keyboard event
-	if(SignalHandler::is_quit() || playlist->is_cleaning())
+	if(QuitFlags::is_quit() || playlist->is_cleaning())
         return 0;
     char buf[BUFSIZ];
     string str;
@@ -133,10 +133,9 @@ int Producer::handleKeyboard(const string& str){
 
 int Producer::close(){
     if(playlist->is_empty()){
-        SignalHandler::interrupt();
+        QuitFlags::interrupt();
         return 0;
     }
-	cout << "c1" << endl << flush;
 
     string command = Protocal::composeCommand(Protocal::P_QUIT, string(""), port);
     vector<ACE_INET_Addr> addr_to_remove;
@@ -150,18 +149,14 @@ int Producer::close(){
     }
 
     if(playlist->is_empty()){
-        SignalHandler::interrupt();
+        QuitFlags::interrupt();
         return 0;
     }
-
-	cout << "c2" << endl << flush;
 
     //set playlist to "clean" status. Once all director are removed, Producer will exit
     playlist->enter_cleaning();
     cout << "Waiting following client to quit: " << endl;
     playlist->printAddress();
-
-	cout << "c3" << endl << flush;
 
     //wait for check_interval, register a timer event
     QuitTimer* h = nullptr;
