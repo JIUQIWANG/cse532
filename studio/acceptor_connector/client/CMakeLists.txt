@@ -1,11 +1,13 @@
+project(ac_client)
+
 set(SOURCE_FILES client_cli.cpp client.cpp)
 set(HEADER_FILES client.h ../signal_handler.h)
 add_executable(ac_client ${SOURCE_FILES} ${HEADER_FILES})
 
 if(WIN32)
-  target_link_libraries(proactor_client -lACEd)
+  target_link_libraries(ac_client -lACEd)
 else(WIN32)
-  target_link_libraries(proactor_client -lACE)
+  target_link_libraries(ac_client -lACE)
 endif(WIN32)
 
 if(${CMAKE_SYSTEM} MATCHES "Linux")
