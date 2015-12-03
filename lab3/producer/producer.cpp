@@ -45,8 +45,8 @@ int Producer::handle_input(ACE_HANDLE h){
     //once quit_flag is set, no longer handle keyboard event
 	if(QuitFlags::is_quit() || playlist->is_cleaning())
         return 0;
-    char buf[BUFSIZ];
-    string str;
+	char buf[BUFSIZ] = {};
+	string str;
     if(h == ACE_STDIN){
         ssize_t result = ACE_OS::read(h, buf, BUFSIZ);
         if(result <= 0)
