@@ -30,13 +30,13 @@ Producer::Producer(const unsigned short port_, ACE_Reactor* reactor_): port(port
     }
 
     //register the liveness checker
-    //ACE_NEW_NORETURN(liveness_checker, LivenessChecker(playlist));
-    //if(liveness_checker == nullptr){
-    //    throw runtime_error("Producer::Producer(): Failed to allocate LivenessChecker");
-    //}
-    //if(reactor->schedule_timer(liveness_checker, 0, check_interval, check_interval) < 0){
-	//	throw runtime_error("Producer::Producer():Failed to regietser liveness checker");
-	//}
+    ACE_NEW_NORETURN(liveness_checker, LivenessChecker(playlist));
+    if(liveness_checker == nullptr){
+        throw runtime_error("Producer::Producer(): Failed to allocate LivenessChecker");
+    }
+    if(reactor->schedule_timer(liveness_checker, 0, check_interval, check_interval) < 0){
+		throw runtime_error("Producer::Producer():Failed to regietser liveness checker");
+	}
 	CLEAN_SCREEN;
     cout << "Waiting for director..." << endl;
 }

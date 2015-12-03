@@ -12,10 +12,26 @@ int main(int argc, char** argv){
     }
     cout << argv[0] << endl;
     const unsigned short port = 2000;
+    const int arg_modulus = 5;
+    const int arg_rot = 10;
+
+    shared_ptr<EndPoint> endpoint(new EndPoint());
+
+    Interceptor* int_pass_ptr = new Interceptor_Pass();
+    shared_ptr<Interceptor> int_pass(int_pass_ptr);
+    Interceptor* int_modulus_ptr  = new Interceptor_Modular(arg_modulus);
+    shared_ptr<Interceptor> int_modulus(int_modulus_ptr);
+    Interceptor* int_rot_ptr = new Interceptor_Rot(arg_rot);
+    shared_ptr<Interceptor> int_rot(int_rot_ptr);
+
+    endpoint->add(int_pass);
+    endpoint->add(int_modulus);
+    //endpoint->add(int_rot);
+
 
     ACE_INET_Addr local_addr(2000);
     Server_Acceptor *acceptor;
-    ACE_NEW_RETURN(acceptor, Server_Acceptor(), returnType::E_MEMORY);
+    ACE_NEW_RETURN(acceptor, Server_Acceptor(endpoint), returnType::E_MEMORY);
     unique_ptr<Server_Acceptor> guard_acceptor(acceptor);
 
     if(acceptor->open(local_addr) < 0){

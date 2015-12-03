@@ -1,7 +1,7 @@
 project(ac_client)
 
-set(SOURCE_FILES client_cli.cpp client.cpp)
-set(HEADER_FILES client.h ../signal_handler.h)
+set(SOURCE_FILES client_cli.cpp client.cpp ../interceptor.cpp)
+set(HEADER_FILES client.h ../signal_handler.h ../interceptor.h)
 add_executable(ac_client ${SOURCE_FILES} ${HEADER_FILES})
 
 if(WIN32)

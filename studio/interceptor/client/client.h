@@ -14,10 +14,11 @@
 #include <memory>
 #include <iostream>
 #include <csignal>
+#include "../interceptor.h"
 
 class PeriodSender: public ACE_Svc_Handler<ACE_SOCK_Stream, ACE_NULL_SYNCH>{
 public:
-    PeriodSender(int argc, char** argv);
+    PeriodSender(int argc, char** argv, std::shared_ptr<EndPoint> endpoint_);
     PeriodSender(){
         std::cout << "PeriodSender " << this << " constructed" << std::endl << std::flush;
     }
@@ -31,6 +32,7 @@ public:
         return 0;
     }
 private:
+    std::shared_ptr<EndPoint> endpoint;
     std::string message;
     ACE_Time_Value interval;
     int counter;
