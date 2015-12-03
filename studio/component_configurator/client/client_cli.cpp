@@ -18,24 +18,20 @@ void logging_thread(int argc, ACE_TCHAR* argv[]){
         cout << ">>";
         string str;
         std::getline(std::cin, str);
+        if(str.compare("quit") == 0)
+            break;
+
         vector<string> str_split;
         string_util::split_str(str, str_split);
-
-        ACE_Service_Object* ptr = 0;
-        try{
-            long addr = stol(str_split[1], 0, 16);
-            cout << "addr:" << addr << endl;
-            ptr = (ACE_Service_Object*)addr;
-
-        }catch (const std::exception& e){
-            ptr = Service_Logger::retriveService(str_split[1]);
-            cout << "ptr:" << ptr << endl;
-            if(!ptr) {
-                cerr << "Service not found" << endl;
-                continue;
-            }
+        if(str_split.size() < 2){
+            cerr << "Invalid argument" << endl;
+            continue;
         }
-
+        ACE_Service_Object* ptr = Service_Logger::retriveService(str_split[1]);
+        if(!ptr){
+            cerr << "Service not found" << endl;
+            continue;
+        }
         if(str_split.front().compare("rename") == 0){
             if(str_split.size() != 3){
                 cout << "Invalid argument" << endl;
@@ -56,29 +52,29 @@ void logging_thread(int argc, ACE_TCHAR* argv[]){
                 cout << "Invalid argument" << endl;
                 continue;
             }
-            ptr->suspend();
-            cout << ptr << " suspended" << endl;
+            if(ptr->suspend() >= 0)
+                cout << ptr << " suspended" << endl;
         }else if(str_split.front().compare("resume") == 0){
             if(str_split.size() != 2){
                 cout << "Invalid argument" << endl;
                 continue;
             }
-            ptr->resume();
-            cout << ptr << " resumed" << endl;
+            if(ptr->resume() >= 0)
+                cout << ptr << " resumed" << endl;
         }else if(str_split.front().compare("fini") == 0) {
             if (str_split.size() != 2) {
                 cout << "Invalid argument" << endl;
                 continue;
             }
-            ptr->fini();
-            cout << ptr << " finished" << endl;
-        }else if(str_split.front().compare("info") == 0){
+            if(ptr->fini() >= 0)
+                cout << ptr << " finished" << endl;
+        }else if(str_split.front().compare("info") == 0) {
             if (str_split.size() != 2) {
                 cout << "Invalid argument" << endl;
                 continue;
             }
-            ACE_TCHAR** info_str;
-            ptr->info(info_str ,0);
+            ACE_TCHAR **info_str;
+            ptr->info(info_str, 0);
         }else{
             cerr << "Invalid argument" << endl;
         }

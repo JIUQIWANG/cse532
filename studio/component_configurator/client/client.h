@@ -42,7 +42,7 @@ public:
     }
 
     virtual int info(ACE_TCHAR** strp, size_t length) const{
-        std::cout << "PeriodSender " << this << " " << status << endl;
+        std::cout << "PeriodSender " << this << " " << status << std::endl;
         return 0;
     }
     virtual int resume(){
@@ -92,14 +92,14 @@ public:
         ACE_NEW_RETURN(sender, PeriodSender(), -1);
 
         if(connect(sender, addr) < 0){
-            cerr << "Can not connect to server" << endl;
+            std::cerr << "Can not connect to server" << std::endl;
             return -1;
         }
         return 0;
     }
 
     virtual int info(ACE_TCHAR** strp, size_t length) const{
-        //std::cout << "ClientConnector " << this << " " << status << endl;
+        std::cout << "ClientConnector " << this << " " << status << std::endl;
         return 0;
     }
     virtual int resume(){
