@@ -3,22 +3,30 @@
 using namespace std;
 
 DirectorAgent::DirectorAgent(int argc, char **argv): timeout(0,100){
-	int minimum_value = stoi(argv[3]);
+	int minimum_value = stoi(argv[argumentList::A_MINPLAYER]);
 	vector<string> scripts;
-	for (int pos = 4; pos < argc; pos++) {
+	for (int pos = argumentList::A_SCRIPT; pos < argc; pos++) {
 		scripts.push_back(argv[pos]);
 	}
 	director = shared_ptr<Director>(new Director(minimum_value, scripts, stream));
 
 	//acceptor = shared_ptr<DirectorAcceptor>(new DirectorAcceptor(director));
 	ACE_NEW_NORETURN(acceptor, DirectorAcceptor(director));
+	acceptor_guard = unique_ptr<DirectorAcceptor>(acceptor);
 	if(!acceptor){
 		throw runtime_error("Can not allocate acceptor");
 	}
 
-	string addr_str = string(argv[2]) + ':' + string(argv[1]);
-	remote_addr.string_to_addr(addr_str.c_str());
-	cout << "Producer address: "<<addr_str<<endl;
+	string addr_str = string(argv[argumentList::A_ADDRESS]);
+	string port_str = string(argv[argumentList::A_PORT]);
+	string full_str = addr_str+":"+port_str;
+	if(addr_str.compare(dummy_address) == 0){
+		full_str = "localhost:"+port_str;
+		remote_addr.string_to_addr(full_str.c_str());
+	}else {
+		remote_addr.string_to_addr(full_str.c_str());
+	}
+	cout << "Producer address: "<<full_str<<endl;
 }
 
 
@@ -28,7 +36,10 @@ DirectorAgent::~DirectorAgent(){
 }
 
 int DirectorAgent::open(char **argv){
-	//open acceptor
+	//open acceptor. The memory of acceptor will either be managed by reactor calling handle_close(),
+	//or explicit released if initializeAcceptor() fails, thus the acceptor_guard should release the
+	//ownership, to avoid re-release a released object.
+	acceptor_guard.release();
 	if(initializeAcceptor() < 0){
 		cerr << "Can not open acceptor!" << endl;
 		director->exit();
@@ -65,7 +76,6 @@ int DirectorAgent::run(){
 	while(true){
 		ACE_Reactor::instance()->handle_events(timeout);
 		if(QuitFlags::is_quit()) {
-			cout << "c1" << endl << flush;
 			closeConnection();
 			break;
 		}

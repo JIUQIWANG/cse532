@@ -33,6 +33,12 @@ public:
     //when shutting down, notify all connected directors
     int close();
 private:
+    inline void updateScreen(){
+        CLEAN_SCREEN;
+        cout << "Current list:" << endl;
+        playlist->printList();
+        Protocal::printInstruction();
+    }
     const unsigned short port;
     std::shared_ptr<PlayList> playlist;
 

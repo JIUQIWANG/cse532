@@ -19,7 +19,7 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
     return parseCommand(str);
 }
 
-int ProducerInputHandler::parseCommand(const std::string &str) {
+int ProducerInputHandler::parseCommand(const std::string &str) { ;
     if(str.empty()) {
         cout << "empty" << endl;
         return ERROR_RETURN;
@@ -48,28 +48,19 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
             itemset.item.push_back(item);
 		}
         playlist->push_back(itemset);
-        playlist->printList();
-        Protocal::printInstruction();
 	}else if(type == Protocal::P_PLAYING) {
         playlist->occupy(remote_addr);
-		CLEAN_SCREEN;
-        cout << "Current list:" << endl;
-        playlist->printList();
     }else if(type == Protocal::P_FINISH){
         playlist->release(remote_addr);
-		CLEAN_SCREEN;
-        cout << "Current list:" << endl;
-        playlist->printList();
     }else if(type == Protocal::P_QUIT){
-        cout << "Director " << addr_buffer << " quit" << endl;
         playlist->removeAddr(remote_addr);
+        updateScreen();
+        cout << "Director " << addr_buffer << " successfully exited" << endl;
         if(playlist->is_empty() && playlist->is_cleaning())
             QuitFlags::interrupt();
-        else {
-			CLEAN_SCREEN;
-            cout << "Current list:" << endl;
-            playlist->printList();
-        }
+        return SUCCESS_RETURN;
     }
+    updateScreen();
+
     return SUCCESS_RETURN;
 }

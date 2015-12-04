@@ -12,7 +12,8 @@ int DirectorInputHandler::handle_input(ACE_HANDLE h){
     ssize_t res = stream.recv(data,BUFSIZ);
     if(res <= 0)
         return ERROR_RETURN;
-	res = stream.send_n("K", 1, &timeout);
+    const char response = 'K';
+	res = stream.send_n(&response, 1, &timeout);
 	if(res <= 0)
 		return ERROR_RETURN;
     str.append(data);

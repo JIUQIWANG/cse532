@@ -18,6 +18,8 @@ enum returnType{SUCCESS,E_ARGUMENT,E_REACTOR,E_CONNECTION,E_MEMORY, E_OTHER};
 #define SUCCESS_RETURN 0
 
 const unsigned short default_port = 2000;
+//if the address argument of director is dummy_address, assign ACE_LOCALHOST
+const std::string dummy_address("0.0.0.0");
 
 class Protocal{
 public:

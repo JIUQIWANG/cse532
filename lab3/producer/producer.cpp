@@ -73,6 +73,8 @@ int Producer::handleKeyboard(const string& str){
     string command;
     shared_ptr<ACE_SOCK_Stream> stream;
 
+    updateScreen();
+
     int send_token = SUCCESS_RETURN;
 
     //to quit the producer, the producer first send <quit> command to all connected
@@ -92,6 +94,7 @@ int Producer::handleKeyboard(const string& str){
         cerr << "Invalid script id!" << endl;
         return ERROR_RETURN;
     }
+
     ACE_INET_Addr remote_addr;
     stream->get_remote_addr(remote_addr);
     char addr_buffer[BUFSIZ];
@@ -102,10 +105,9 @@ int Producer::handleKeyboard(const string& str){
         cerr << "Invalid script id" << endl;
         return ERROR_RETURN;
     }
-
     if(str_split.front().compare("play") == 0){
 		if(status == PlayList::PLAYING){
-			cerr << "Script now playing..."<<endl;
+			cerr << "Director "<<addr_buffer<<" is playing a script, please wait until finishing..."<<endl;
 			return ERROR_RETURN;
 		}
         command = Protocal::composeCommand(Protocal::P_PLAY, id_converted, port);
@@ -124,9 +126,6 @@ int Producer::handleKeyboard(const string& str){
     if(send_token != SUCCESS_RETURN){
         cerr << "Connection to " << addr_buffer << "lost, remote all scripts from it" << endl;
         playlist->removeAddr(remote_addr);
-		CLEAN_SCREEN;
-        cout << "Current list:" << endl;
-        playlist->printList();
     }
     return send_token;
 }
@@ -155,6 +154,7 @@ int Producer::close(){
 
     //set playlist to "clean" status. Once all director are removed, Producer will exit
     playlist->enter_cleaning();
+    CLEAN_SCREEN;
     cout << "Waiting following client to quit: " << endl;
     playlist->printAddress();
 

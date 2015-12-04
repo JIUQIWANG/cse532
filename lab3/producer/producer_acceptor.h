@@ -30,6 +30,13 @@ public:
         return SUCCESS_RETURN;
     }
 private:
+    inline void updateScreen(){
+        CLEAN_SCREEN;
+        cout << "Current list:" << endl;
+        playlist->printList();
+        Protocal::printInstruction();
+    }
+
     std::shared_ptr<PlayList> playlist;
 	static const ACE_Time_Value timeout;
 };
@@ -51,6 +58,7 @@ public:
         return SUCCESS_RETURN;
     }
 private:
+
     const std::shared_ptr<PlayList> playlist;
 };
 #endif
