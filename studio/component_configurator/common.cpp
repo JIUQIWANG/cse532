@@ -53,6 +53,7 @@ ACE_Service_Object* Service_Logger::retriveService(const std::string &str) {
 }
 
 void Service_Logger::printList(){
+	cout << "---------------------------------"<<endl;
     cout << "Current Registered Service Object:"<<endl;
     for(const auto&v: svc_set)
 	cout << v.ptr << ' '<< v.label << endl << flush;

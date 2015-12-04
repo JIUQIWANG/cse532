@@ -13,7 +13,8 @@ int SocketHandler::handle_input(ACE_HANDLE h){
             break;
         res += buffer[i];
     }
-    cout << endpoint->decode(res) << endl << std::flush;
+	cout << "Aefore decoding: "<<res<<endl;
+    cout << "After decoding: " << endpoint->decode(res) << endl << std::flush;
     return 0;
 }
 

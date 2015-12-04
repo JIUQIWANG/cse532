@@ -12,8 +12,8 @@ int main(int argc, char** argv){
     }
     cout << argv[0] << endl;
     const unsigned short port = 2000;
-    const int arg_modulus = 5;
-    const int arg_rot = 10;
+    const int arg_modulus = 10;
+    const int arg_rot = 20;
 
     shared_ptr<EndPoint> endpoint(new EndPoint());
 
@@ -21,11 +21,14 @@ int main(int argc, char** argv){
     shared_ptr<Interceptor> int_pass(int_pass_ptr);
     Interceptor* int_modulus_ptr  = new Interceptor_Modular(arg_modulus);
     shared_ptr<Interceptor> int_modulus(int_modulus_ptr);
+	Interceptor* int_modulus_ptr2  = new Interceptor_Modular(3);
+    shared_ptr<Interceptor> int_modulus2(int_modulus_ptr2);
     Interceptor* int_rot_ptr = new Interceptor_Rot(arg_rot);
     shared_ptr<Interceptor> int_rot(int_rot_ptr);
 
-    endpoint->add(int_pass);
+	//endpoint->add(int_pass);
     endpoint->add(int_modulus);
+	endpoint->add(int_modulus2);
     //endpoint->add(int_rot);
 
 

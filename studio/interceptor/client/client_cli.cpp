@@ -16,7 +16,7 @@ int main(int argc, char** argv){
         return returnType::invalid_argument;
     }
     const unsigned short port = 2000;
-    const int arg_modulus = 5;
+    const int arg_modulus = 13;
     const int arg_rot = 10;
 
     ACE_INET_Addr addr(port, ACE_LOCALHOST);
@@ -31,9 +31,9 @@ int main(int argc, char** argv){
     Interceptor* int_rot_ptr = new Interceptor_Rot(arg_rot);
     shared_ptr<Interceptor> int_rot(int_rot_ptr);
 
-    endpoint->add(int_pass);
     endpoint->add(int_modulus);
-    endpoint->add(int_rot);
+	//endpoint->add(int_rot);
+    //endpoint->add(int_rot);
 
     //use unique_ptr to avoid memory leak
     PeriodSender* sender;

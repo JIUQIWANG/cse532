@@ -73,7 +73,7 @@ void logging_thread(int argc, ACE_TCHAR* argv[]){
                 cout << "Invalid argument" << endl;
                 continue;
             }
-            ACE_TCHAR **info_str;
+            ACE_TCHAR **info_str = 0;
             ptr->info(info_str, 0);
         }else{
             cerr << "Invalid argument" << endl;
