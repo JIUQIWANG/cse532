@@ -23,6 +23,10 @@ public:
 
     //handle keyboard interaction
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
+    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+        delete this;
+        return SUCCESS_RETURN;
+    }
 
     int handleKeyboard(const std::string& str);
 

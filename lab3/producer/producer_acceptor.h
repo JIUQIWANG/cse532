@@ -25,6 +25,10 @@ public:
     }
     int parseCommand(const std::string& str);
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
+    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+        delete this;
+        return SUCCESS_RETURN;
+    }
 private:
     std::shared_ptr<PlayList> playlist;
 	static const ACE_Time_Value timeout;
@@ -40,7 +44,11 @@ public:
         sh = h;
         sh->setPlayList(playlist);
         sh->reactor(reactor());
-        return 0;
+        return SUCCESS_RETURN;
+    }
+    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+        delete this;
+        return SUCCESS_RETURN;
     }
 private:
     const std::shared_ptr<PlayList> playlist;

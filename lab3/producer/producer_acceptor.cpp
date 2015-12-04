@@ -10,10 +10,11 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
     string str;
     ssize_t res = stream.recv(data,sizeof(data));
     if(res <= 0)
-        return -1;
-	res = stream.send_n("K", 1, &timeout);
+        return ERROR_RETURN;
+    const char response = 'K';
+	res = stream.send_n(&response, 1, &timeout);
 	if(res <= 0)
-		return -1;
+		return ERROR_RETURN;
     str.append(data);
     return parseCommand(str);
 }
@@ -21,14 +22,14 @@ int ProducerInputHandler::handle_input(ACE_HANDLE h){
 int ProducerInputHandler::parseCommand(const std::string &str) {
     if(str.empty()) {
         cout << "empty" << endl;
-        return -1;
+        return ERROR_RETURN;
     }
     vector<string> play_title;
     Protocal::protocalType type;
     unsigned short remote_port;
 
     if (Protocal::parseCommand(str, type, play_title, remote_port) == -1)
-        return -1;
+        return ERROR_RETURN;
 
     char addr_buffer[BUFSIZ] = {};
     ACE_INET_Addr remote_addr;
@@ -70,6 +71,5 @@ int ProducerInputHandler::parseCommand(const std::string &str) {
             playlist->printList();
         }
     }
-
-    return 0;
+    return SUCCESS_RETURN;
 }

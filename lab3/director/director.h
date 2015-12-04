@@ -69,6 +69,7 @@ public:
 		cv.notify_all();
 	}
 	inline void exit(){
+		stop();
 		std::lock_guard<std::mutex> guard(mt);
 		play_queue.push_front(finish_token);
 		cv.notify_all();

@@ -14,6 +14,9 @@
 
 enum returnType{SUCCESS,E_ARGUMENT,E_REACTOR,E_CONNECTION,E_MEMORY, E_OTHER};
 
+#define ERROR_RETURN -1
+#define SUCCESS_RETURN 0
+
 const unsigned short default_port = 2000;
 
 class Protocal{
@@ -30,9 +33,6 @@ public:
 
     static inline void printInstruction(){
         std::cout << "Operations\t play <id-of-script>\t stop <id-of-script>\t quit" << std::endl;
-//        std::cout << "play <id-of-script>" << std::endl;
-//        std::cout << "stop <id-of-script>" << std::endl;
-//        std::cout << "quit" << std::endl;
         std::cout << "---------------------------" << std::endl;
     }
 

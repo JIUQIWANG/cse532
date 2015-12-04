@@ -18,6 +18,10 @@ public:
 	LivenessChecker(const std::shared_ptr<PlayList>& playlist_):
 			playlist(playlist_){}
 	virtual int handle_timeout(const ACE_Time_Value& value, const void *pvoid);
+	virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+		delete this;
+		return SUCCESS_RETURN;
+	}
 private:
 	std::shared_ptr<PlayList> playlist;
 };

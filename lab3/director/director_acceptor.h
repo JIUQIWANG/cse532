@@ -21,6 +21,10 @@ public:
     DirectorInputHandler(const std::shared_ptr<Director> director_): director(director_){}
 
     virtual int handle_input(ACE_HANDLE=ACE_INVALID_HANDLE);
+    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+        delete this;
+        return SUCCESS_RETURN;
+    }
 private:
     std::shared_ptr<Director> director;
 	static const ACE_Time_Value timeout;
@@ -34,7 +38,11 @@ public:
         ACE_NEW_RETURN(h, DirectorInputHandler(director), -1);
         sh = h;
         sh->reactor(reactor());
-        return 0;
+        return SUCCESS_RETURN;
+    }
+    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+        delete this;
+        return SUCCESS_RETURN;
     }
 private:
     std::shared_ptr<Director> director;

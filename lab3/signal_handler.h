@@ -7,6 +7,8 @@
 #include <atomic>
 #include <iostream>
 
+#define SIG_QUIT_RETURN -1
+#define SIG_CONT_RETURN 0
 class QuitFlags{
 public:
 	static void set_quit_flag(){
@@ -25,9 +27,13 @@ public:
     virtual int handle_signal(int signum, siginfo_t* t, ucontext_t* c){
         if(signum == SIGINT){
 			QuitFlags::set_quit_flag();
-			return -1;
+			return SIG_QUIT_RETURN;
         }
-       return 0;
+       return SIG_CONT_RETURN;
     }
+	virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask){
+		delete this;
+		return SIG_CONT_RETURN;
+	}
 };
 #endif

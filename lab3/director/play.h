@@ -6,6 +6,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include "../signal_handler.h"
 
 //struct for lines
 struct Line{

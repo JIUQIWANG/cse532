@@ -74,7 +74,7 @@ int Director::work(){
 			break;
 		}
 	}
-	return 0;
+	return SUCCESS_RETURN;
 }
 
 //Return formatted play list

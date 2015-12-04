@@ -18,5 +18,5 @@ int LivenessChecker::handle_timeout(const ACE_Time_Value& value, const void *pvo
 			playlist->removeAddr(remote_addr);
 		}
 	}
-	return 0;
+	return SUCCESS_RETURN;
 }

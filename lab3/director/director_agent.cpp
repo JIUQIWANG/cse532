@@ -62,10 +62,10 @@ int DirectorAgent::run(){
 		return returnType::E_CONNECTION;
 	}
 
-	//ACE_Reactor::instance()->schedule_timer(liveness_sender, 0, report_interval, report_interval);
 	while(true){
 		ACE_Reactor::instance()->handle_events(timeout);
 		if(QuitFlags::is_quit()) {
+			cout << "c1" << endl << flush;
 			closeConnection();
 			break;
 		}
@@ -85,10 +85,10 @@ int DirectorAgent::initializeAcceptor(){
 	for(unsigned short i=start_port; i<=end_port; i++){
 		if(acceptor->open(ACE_INET_Addr(i)) >= 0){
 			local_port = i;
-			return 0;
+			return SUCCESS_RETURN;
 		}
 	}
-	return -1;
+	return ERROR_RETURN;
 }
 
 void DirectorAgent::closeConnection(){

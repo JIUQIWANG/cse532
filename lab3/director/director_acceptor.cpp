@@ -11,11 +11,11 @@ int DirectorInputHandler::handle_input(ACE_HANDLE h){
     string str;
     ssize_t res = stream.recv(data,BUFSIZ);
     if(res <= 0)
-        return -1;
+        return ERROR_RETURN;
 	res = stream.send_n("K", 1, &timeout);
 	if(res <= 0)
-		return -1;
+		return ERROR_RETURN;
     str.append(data);
     director->parseCommand(str);
-    return 0;
+    return SUCCESS_RETURN;
 }
