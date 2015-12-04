@@ -58,27 +58,32 @@ int DirectorAgent::open(char **argv){
 }
 
 int DirectorAgent::run(){
-	SignalHandler* sighandler;
-	ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
-	const ACE_Time_Value report_interval(1,0);
+	try {
+		SignalHandler *sighandler;
+		ACE_NEW_RETURN(sighandler, SignalHandler(), returnType::E_MEMORY);
+		const ACE_Time_Value report_interval(1, 0);
 
-	if(ACE_Reactor::instance()->register_handler(SIGINT, sighandler) < 0){
-		cerr << "DirectorAgent::run(): failed to register to reactor" << endl;
-		//director->exit();
-		return returnType::E_REACTOR;
-	}
-
-	if(sendPlayList() != Sender::SUCCESS){
-		cerr << "Can not connect to Producer" << endl;
-		return returnType::E_CONNECTION;
-	}
-
-	while(true){
-		ACE_Reactor::instance()->handle_events(timeout);
-		if(QuitFlags::is_quit()) {
-			closeConnection();
-			break;
+		if (ACE_Reactor::instance()->register_handler(SIGINT, sighandler) < 0) {
+			cerr << "DirectorAgent::run(): failed to register to reactor" << endl;
+			//director->exit();
+			return returnType::E_REACTOR;
 		}
+
+		if (sendPlayList() != Sender::SUCCESS) {
+			cerr << "Can not connect to Producer" << endl;
+			return returnType::E_CONNECTION;
+		}
+
+		while (true) {
+			ACE_Reactor::instance()->handle_events(timeout);
+			if (QuitFlags::is_quit()) {
+				closeConnection();
+				break;
+			}
+		}
+	}catch(const exception& e){
+		cerr << e.what() << endl;
+		return returnType::E_OTHER;
 	}
 	return returnType::SUCCESS;
 }
